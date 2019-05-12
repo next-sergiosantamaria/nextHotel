@@ -1,0 +1,17 @@
+{
+  "name": "Next Hotel",
+  "icons": [
+    {
+      "src": "",
+      "sizes": "144x144",
+      "type": "image/png",
+      "density": "3.0"
+    }
+  ],
+  "permissions": [
+  "fullscreen"
+  ],
+  "start_url": "index.html",
+  "display": "fullscreen",
+  "orientation": "landscape"
+}
