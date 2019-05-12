@@ -64,7 +64,7 @@ function initRender() {
 }
 
 function loadOffice(officeName) {
-
+    $('#container').removeClass('displayOn');
     plantas.map(function(plantName){
         scene.remove(scene.getObjectByName( plantName ));
     });
