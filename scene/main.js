@@ -10,7 +10,7 @@ var manager = new THREE.LoadingManager();
 var interactivos = new THREE.Object3D();
 interactivos.name = 'interactiveElements';
 
-var plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0'];
+var plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
 
 $(document).ready(function () {
     generateMenu();
