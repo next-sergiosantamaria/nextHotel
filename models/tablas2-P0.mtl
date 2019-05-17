@@ -1,5 +1,5 @@
 # Blender MTL File: 'tablas2-P0-join.blend'
-# Material Count: 13
+# Material Count: 14
 
 newmtl black
 Ns 96.078431
@@ -41,6 +41,17 @@ Ni 1.000000
 d 1.000000
 illum 2
 
+newmtl blue3_cristal.png
+Ns 94.117647
+Ka 1.000000 1.000000 1.000000
+Kd 0.006995 0.127438 0.376262
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd cristal.png
+
 newmtl cristales
 Ns 94.117647
 Ka 1.000000 1.000000 1.000000
@@ -50,9 +61,9 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 0.405623
 illum 2
-map_Kd /Users/victor.puebla/Projects/Downloads/nextHotel-master/models/cristal.png
+map_Kd cristal.png
 
-newmtl cristales_cristal.png.001
+newmtl cristales_cristal.png
 Ns 94.117647
 Ka 1.000000 1.000000 1.000000
 Kd 0.719243 0.751563 0.800000
