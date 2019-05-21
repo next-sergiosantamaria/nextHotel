@@ -31,17 +31,35 @@ html,body {
   transition: all ease-out 3s;
 }
 
+.hotelLogo{
+  width: 180px;
+  position: absolute;
+  left: 10px;
+  bottom: 50px;
+}
+
+.clanLogo{
+  position: absolute;
+  width: 70px;
+  top: 30px;
+  right: 30px;
+}
+
 .plantSelectMenu{
   width: 200px;
+  height: 100%;
   position: absolute;
-  top: 30px;
-  left: 30px;
+  top: 0px;
+  left: 0px;
+  padding: 20px 10px;
+  background-color: #222222;
+
 }
 
 .plantSelectButton{
   text-align: center;
   padding: 5px;
-  background-color:#028484;
+  background-color:#00cdce;
   border-radius: 2px;
   color: white;
   cursor: pointer;
