@@ -10,6 +10,9 @@ var manager = new THREE.LoadingManager();
 var interactivos = new THREE.Object3D();
 interactivos.name = 'interactiveElements';
 
+var avatar = new THREE.Object3D();
+avatar.name = 'avatar';
+
 var plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
 
 $(document).ready(function () {
@@ -40,17 +43,22 @@ function initRender() {
 
     var container = document.getElementById('container');
     container.appendChild(element);
+    
+    scene.add(interactivos);
 
     camera = new THREE.PerspectiveCamera(60, (width / height), 0.01, 10000000);
     camera.position.set(1, 2, 0);
+    camera.lookAt(interactivos.position);
 
     scene.add(camera);
 
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
+    /*controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = false;
     controls.dampingFactor = 0.70;
-    controls.enableZoom = true;
-    controls.target.set(0,0,0);
+    controls.enableZoom = false;
+    controls.enableRotate = false;
+    controls.enablePan = true;
+    controls.target.set(0,0,0);*/
 
     ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
     ambientLight.position.set(0, 0.6, 0);
@@ -62,6 +70,62 @@ function initRender() {
     window.addEventListener('resize', onWindowResize, false);
    
 }
+
+function loadAvatar() {
+    var onProgress = function (xhr) {
+        if (xhr.lengthComputable) {
+            var percentComplete = xhr.loaded / xhr.total * 100;
+            if (percentComplete == 100) {
+                console.log('Avatar model loaded!!');
+            }
+        }
+    };
+    var onError = function (xhr) {
+    };
+    
+    var mtlLoader = new THREE.MTLLoader();
+    mtlLoader.setPath('models/');
+    mtlLoader.setMaterialOptions ( { side: THREE.DoubleSide } );
+    mtlLoader.load('testAvatar'+'.mtl', function (materials) {
+        console.log(materials);
+        materials.preload();
+        var objLoader = new THREE.OBJLoader();
+        objLoader.setMaterials(materials);
+        objLoader.setPath('models/');
+        objLoader.load('testAvatar'+'.obj', function (elements) {
+            interactivos.add(elements);
+            //elements.position.set(0,0,-2.22);
+        }, onProgress, onError); 
+    });
+}
+
+var xSpeed = 0.02;
+var ySpeed = 0.02;
+
+document.onkeydown = function(event) {
+    switch( event.which ){
+        case 87:
+            interactivos.position.x -= ySpeed;
+            camera.position.x -= ySpeed;
+            interactivos.rotation.y = Math.PI;
+        break; 
+        case 83:
+            interactivos.position.x += ySpeed;
+            camera.position.x += ySpeed;
+            interactivos.rotation.y = 0;
+        break; 
+        case 65:
+            interactivos.position.z += xSpeed;
+            camera.position.z += xSpeed;
+            interactivos.rotation.y = -Math.PI / 2;
+        break; 
+        case 68:
+            interactivos.position.z -= xSpeed;
+            camera.position.z -= xSpeed;
+            interactivos.rotation.y = Math.PI / 2;
+        break; 
+    }
+};
 
 function loadOffice(officeName) {
     $('#container').removeClass('displayOn');
@@ -103,6 +167,7 @@ function loadOffice(officeName) {
             elements.name = officeName;
             scene.add(elements);
             $('#container').addClass('displayOn');
+            loadAvatar();
         }, onProgress, onError); 
     });
 }
@@ -116,6 +181,8 @@ function onWindowResize() {
 function animate() {
   requestAnimationFrame(animate);
   camera.updateMatrixWorld();
+  
+  //camera.lookAt(interactivos.position);
   
   if (controls) {
     controls.update(clock.getDelta());
