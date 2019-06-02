@@ -3,7 +3,10 @@ var camera, scene, renderer, controls,
     height = window.innerHeight;
 
 var clock = new THREE.Clock();
+var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
+
+var mouseClicked = false;
 
 var manager = new THREE.LoadingManager();
 
@@ -44,11 +47,12 @@ function initRender() {
     var container = document.getElementById('container');
     container.appendChild(element);
     
+    scene.add(avatar);
     scene.add(interactivos);
 
     camera = new THREE.PerspectiveCamera(60, (width / height), 0.01, 10000000);
     camera.position.set(1, 2, 0);
-    camera.lookAt(interactivos.position);
+    camera.lookAt(avatar.position);
 
     scene.add(camera);
 
@@ -68,6 +72,9 @@ function initRender() {
     directionalLight.position.set(3,3,3);
     scene.add( directionalLight );
     window.addEventListener('resize', onWindowResize, false);
+    document.getElementById('container').addEventListener( 'mousemove', onMouseMove, false );
+    document.getElementById('container').addEventListener ("mousedown", function () {mouseClicked = true}, false);
+    document.getElementById('container').addEventListener ("mouseup", function () {mouseClicked = false}, false);
    
 }
 
@@ -93,39 +100,11 @@ function loadAvatar() {
         objLoader.setMaterials(materials);
         objLoader.setPath('models/');
         objLoader.load('testAvatar'+'.obj', function (elements) {
-            interactivos.add(elements);
+            avatar.add(elements);
             //elements.position.set(0,0,-2.22);
         }, onProgress, onError); 
     });
 }
-
-var xSpeed = 0.02;
-var ySpeed = 0.02;
-
-document.onkeydown = function(event) {
-    switch( event.which ){
-        case 87:
-            interactivos.position.x -= ySpeed;
-            camera.position.x -= ySpeed;
-            interactivos.rotation.y = Math.PI;
-        break; 
-        case 83:
-            interactivos.position.x += ySpeed;
-            camera.position.x += ySpeed;
-            interactivos.rotation.y = 0;
-        break; 
-        case 65:
-            interactivos.position.z += xSpeed;
-            camera.position.z += xSpeed;
-            interactivos.rotation.y = -Math.PI / 2;
-        break; 
-        case 68:
-            interactivos.position.z -= xSpeed;
-            camera.position.z -= xSpeed;
-            interactivos.rotation.y = Math.PI / 2;
-        break; 
-    }
-};
 
 function loadOffice(officeName) {
     $('#container').removeClass('displayOn');
@@ -165,11 +144,61 @@ function loadOffice(officeName) {
                 else if(interactiveObject.material.name.substring(0,11) == 'transparent') interactiveObject.material.transparent = true;
             });
             elements.name = officeName;
-            scene.add(elements);
+            interactivos.add(elements);
             $('#container').addClass('displayOn');
             loadAvatar();
         }, onProgress, onError); 
     });
+}
+
+var xSpeed = 0.02;
+var ySpeed = 0.02;
+
+document.onkeydown = function(event) {
+    console.log(event.which);
+    switch( true ){
+        case event.which == 87 || event.which == 38:
+            avatar.position.x -= ySpeed;
+            //camera.position.x -= ySpeed;
+            avatar.rotation.y = -Math.PI / 2;
+        break; 
+        case event.which == 83 || event.which == 40:
+            avatar.position.x += ySpeed;
+            //camera.position.x += ySpeed;
+            avatar.rotation.y = Math.PI / 2;
+        break; 
+        case event.which == 65 || event.which == 37:
+            avatar.position.z += xSpeed;
+            //camera.position.z += xSpeed;
+            avatar.rotation.y = 0;
+        break; 
+        case event.which == 68 || event.which == 39:
+            avatar.position.z -= xSpeed;
+            //camera.position.z -= xSpeed;
+            avatar.rotation.y = Math.PI;
+        break; 
+    }
+};
+
+
+document.onkeyup = function(){
+    if (avatar.position.x > 1) { xSpeed = -0.02; ySpeed = -0.02; }
+    else  { xSpeed = 0.02; ySpeed = 0.02; }
+};
+
+function onMouseMove( event ) {
+    mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+    mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+    raycaster.setFromCamera( mouse, camera );
+    // See if the ray from the camera into the world hits one of our meshes
+    var intersects = raycaster.intersectObject( interactivos.children[0].children[0]);
+    if ( intersects.length > 0 ) {
+       if(mouseClicked) {
+           console.log(intersects[0].point);
+           movement({ x: intersects[0].point.x, y: 0, z: intersects[0].point.z }, avatar.position, 0, 4000, TWEEN.Easing.Quartic.Out);
+           avatar.lookAt( intersects[0].point.x, 0, intersects[0].point.z );
+        }
+    }
 }
 
 function onWindowResize() {
@@ -182,7 +211,7 @@ function animate() {
   requestAnimationFrame(animate);
   camera.updateMatrixWorld();
   
-  //camera.lookAt(interactivos.position);
+  camera.lookAt(avatar.position);
   
   if (controls) {
     controls.update(clock.getDelta());
