@@ -71,6 +71,7 @@ function initRender() {
     var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
     directionalLight.position.set(3,3,3);
     scene.add( directionalLight );
+
     window.addEventListener('resize', onWindowResize, false);
     document.getElementById('container').addEventListener( 'mousemove', onMouseMove, false );
     document.getElementById('container').addEventListener ("mousedown", function () {mouseClicked = true}, false);
@@ -93,13 +94,13 @@ function loadAvatar() {
     var mtlLoader = new THREE.MTLLoader();
     mtlLoader.setPath('models/');
     mtlLoader.setMaterialOptions ( { side: THREE.DoubleSide } );
-    mtlLoader.load('testAvatar'+'.mtl', function (materials) {
+    mtlLoader.load('avatar_import'+'.mtl', function (materials) {
         console.log(materials);
         materials.preload();
         var objLoader = new THREE.OBJLoader();
         objLoader.setMaterials(materials);
         objLoader.setPath('models/');
-        objLoader.load('testAvatar'+'.obj', function (elements) {
+        objLoader.load('avatar_import'+'.obj', function (elements) {
             avatar.add(elements);
             //elements.position.set(0,0,-2.22);
         }, onProgress, onError); 
@@ -127,7 +128,6 @@ function loadOffice(officeName) {
     mtlLoader.setPath('models/');
     mtlLoader.setMaterialOptions ( { side: THREE.DoubleSide } );
     mtlLoader.load(officeName+'.mtl', function (materials) {
-        console.log(materials);
         materials.preload();
         var objLoader = new THREE.OBJLoader();
         objLoader.setMaterials(materials);
@@ -179,7 +179,6 @@ document.onkeydown = function(event) {
         break; 
     }
 };
-
 
 document.onkeyup = function(){
     if (avatar.position.x > 1) { xSpeed = -0.02; ySpeed = -0.02; }
