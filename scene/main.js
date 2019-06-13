@@ -1,22 +1,26 @@
-var camera, scene, renderer, controls, 
+let camera, scene, renderer, controls, 
     width = window.innerWidth,
     height = window.innerHeight;
 
-var clock = new THREE.Clock();
-var raycaster = new THREE.Raycaster();
-var mouse = new THREE.Vector2();
+let xSpeed = ySpeed = 0.02;
 
-var mouseClicked = false;
+let clock = new THREE.Clock();
+let raycaster = new THREE.Raycaster();
+let mouse = new THREE.Vector2();
 
-var manager = new THREE.LoadingManager();
+let mouseClicked = false;
 
-var interactivos = new THREE.Object3D();
+let manager = new THREE.LoadingManager();
+
+let interactivos = new THREE.Object3D();
 interactivos.name = 'interactiveElements';
 
-var avatar = new THREE.Object3D();
+let avatar = new THREE.Object3D();
 avatar.name = 'avatar';
 
-var plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
+let plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
+
+const avatarControls = new keyControls();
 
 $(document).ready(function () {
     generateMenu();
@@ -44,7 +48,7 @@ function initRender() {
 
     element = renderer.domElement;
 
-    var container = document.getElementById('container');
+    let container = document.getElementById('container');
     container.appendChild(element);
     
     scene.add(avatar);
@@ -68,7 +72,7 @@ function initRender() {
     ambientLight.position.set(0, 0.6, 0);
     scene.add(ambientLight);
 
-    var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+    let directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
     directionalLight.position.set(3,3,3);
     scene.add( directionalLight );
 
@@ -80,24 +84,24 @@ function initRender() {
 }
 
 function loadAvatar() {
-    var onProgress = function (xhr) {
+    let onProgress = function (xhr) {
         if (xhr.lengthComputable) {
-            var percentComplete = xhr.loaded / xhr.total * 100;
+            let percentComplete = xhr.loaded / xhr.total * 100;
             if (percentComplete == 100) {
                 console.log('Avatar model loaded!!');
             }
         }
     };
-    var onError = function (xhr) {
+    let onError = function (xhr) {
     };
     
-    var mtlLoader = new THREE.MTLLoader();
+    let mtlLoader = new THREE.MTLLoader();
     mtlLoader.setPath('models/');
     mtlLoader.setMaterialOptions ( { side: THREE.DoubleSide } );
     mtlLoader.load('avatar_import'+'.mtl', function (materials) {
         console.log(materials);
         materials.preload();
-        var objLoader = new THREE.OBJLoader();
+        let objLoader = new THREE.OBJLoader();
         objLoader.setMaterials(materials);
         objLoader.setPath('models/');
         objLoader.load('avatar_import'+'.obj', function (elements) {
@@ -109,27 +113,26 @@ function loadAvatar() {
 
 function loadOffice(officeName) {
     $('#container').removeClass('displayOn');
-    plantas.map(function(plantName){
-        scene.remove(scene.getObjectByName( plantName ));
-    });
 
-    var onProgress = function (xhr) {
+    interactivos.remove(interactivos.children[0]);
+
+    let onProgress = function (xhr) {
         if (xhr.lengthComputable) {
-            var percentComplete = xhr.loaded / xhr.total * 100;
+            let percentComplete = xhr.loaded / xhr.total * 100;
             if (percentComplete == 100) {
                 console.log(officeName+' model loaded!!');
             }
         }
     };
-    var onError = function (xhr) {
+    let onError = function (xhr) {
     };
     
-    var mtlLoader = new THREE.MTLLoader();
+    let mtlLoader = new THREE.MTLLoader();
     mtlLoader.setPath('models/');
     mtlLoader.setMaterialOptions ( { side: THREE.DoubleSide } );
     mtlLoader.load(officeName+'.mtl', function (materials) {
         materials.preload();
-        var objLoader = new THREE.OBJLoader();
+        let objLoader = new THREE.OBJLoader();
         objLoader.setMaterials(materials);
         objLoader.setPath('models/');
         objLoader.load(officeName+'.obj', function (elements) {
@@ -151,11 +154,7 @@ function loadOffice(officeName) {
     });
 }
 
-var xSpeed = 0.02;
-var ySpeed = 0.02;
-
 document.onkeydown = function(event) {
-    console.log(event.which);
     switch( true ){
         case event.which == 87 || event.which == 38:
             avatar.position.x -= ySpeed;
@@ -189,15 +188,16 @@ function onMouseMove( event ) {
     mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
     raycaster.setFromCamera( mouse, camera );
-    // See if the ray from the camera into the world hits one of our meshes
-    var intersects = raycaster.intersectObject( interactivos.children[0].children[0]);
-    if ( intersects.length > 0 ) {
-       if(mouseClicked) {
-           console.log(intersects[0].point);
-           movement({ x: intersects[0].point.x, y: 0, z: intersects[0].point.z }, avatar.position, 0, 4000, TWEEN.Easing.Quartic.Out);
-           avatar.lookAt( intersects[0].point.x, 0, intersects[0].point.z );
+    if( interactivos.children.length > 0 ) {
+        let intersects = raycaster.intersectObject( interactivos.children[0].children[0]);
+        if ( intersects.length > 0 ) {
+            if(mouseClicked) {
+                //console.log(intersects[0].point);
+                movement({ x: intersects[0].point.x, y: 0, z: intersects[0].point.z }, avatar.position, 0, 4000, TWEEN.Easing.Quartic.Out);
+                avatar.lookAt( intersects[0].point.x, 0, intersects[0].point.z );
+                }
+            }
         }
-    }
 }
 
 function onWindowResize() {
@@ -224,7 +224,7 @@ function render() {
 }
 
 function movement(value, object, delay, duration, easingType) {
-    var tween = new TWEEN.Tween(object)
+    new TWEEN.Tween(object)
         .to(value, duration)
         .easing(easingType)
         .onUpdate(function () {
