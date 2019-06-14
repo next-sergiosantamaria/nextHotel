@@ -3,9 +3,9 @@ keyControls = function(object) {
     this.mouseClicked = false;
     this.xSpeed = this.ySpeed = 0.02;
 
-    document.onmousedown  = function(){this.mouseClicked = true;}
-    document.onmouseup  = function(){this.mouseClicked = false;}
-    document.onmousemove = function(event){
+    document.getElementById("container").onmousedown  = function(){this.mouseClicked = true;}
+    document.getElementById("container").onmouseup  = function(){this.mouseClicked = false;}
+    document.getElementById("container").onmousemove = function(event){
         if(this.mouseClicked) {
             mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
             mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
@@ -20,7 +20,7 @@ keyControls = function(object) {
         }
     }
     
-    document.onkeydown = function(event) {
+    document.getElementById("container").onkeydown = function(event) {
         console.log(event);
         switch( true ){
             //move up
