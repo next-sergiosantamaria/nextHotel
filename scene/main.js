@@ -11,7 +11,7 @@ let mouse = new THREE.Vector2();
 let manager = new THREE.LoadingManager();
 
 let planta = new THREE.Object3D();
-planta.name = 'interactiveElements';
+planta.name = 'planta';
 
 let avatar = new THREE.Object3D();
 avatar.name = 'avatar';
@@ -28,7 +28,7 @@ $(document).ready(function () {
 
 function generateMenu(){
     plantas.map(function(plantName){
-        $(".plantSelectMenu").append('<div class="plantSelectButton" onclick=loadOffice("'+plantName+'")>'+plantName+'</div>');
+        $(".officeSelectorMenu").prepend('<div class="plantSelectButton" onclick=loadOffice("'+plantName+'")>'+plantName+'</div>');
     });
 }
 
@@ -48,6 +48,7 @@ function initRender() {
 
     let container = document.getElementById('container');
     container.appendChild(element);
+    element.id = "svgObject";
     
     scene.add(avatar);
     scene.add(planta);
@@ -115,10 +116,9 @@ function loadAvatar() {
 }
 
 function loadOffice(officeName) {
+    tl.tweenTo("openApp");
     $('#container').removeClass('displayOn');
-
     planta.remove(planta.children[0]);
-
     let onProgress = function (xhr) {
         if (xhr.lengthComputable) {
             let percentComplete = xhr.loaded / xhr.total * 100;
@@ -188,4 +188,3 @@ function movement(value, object, delay, duration, easingType) {
         .delay(delay)
         .start();
 }
-

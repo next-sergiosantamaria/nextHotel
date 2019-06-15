@@ -1,7 +1,7 @@
-keyControls = function(object) {
+keyControls = function(avatarObject) {
 
     this.mouseClicked = false;
-    this.xSpeed = this.ySpeed = 0.02;
+    let xSpeed = ySpeed = 0.02;
 
     document.getElementById("container").onmousedown  = function(){this.mouseClicked = true;}
     document.getElementById("container").onmouseup  = function(){this.mouseClicked = false;}
@@ -14,44 +14,42 @@ keyControls = function(object) {
                 let intersects = raycaster.intersectObject( planta.children[0].children[0]);
                 if ( intersects.length > 0 ) {
                     movement({ x: intersects[0].point.x, y: 0, z: intersects[0].point.z }, avatar.position, 0, 500, TWEEN.Easing.Linear.None);
-                    object.lookAt( intersects[0].point.x, 0, intersects[0].point.z );
+                    avatarObject.lookAt( intersects[0].point.x, 0, intersects[0].point.z );
                 }
             }
         }
     }
     
-    document.getElementById("container").onkeydown = function(event) {
-        console.log(event);
+    document.onkeydown = function(event) {
         switch( true ){
             //move up
             case event.key == "w" || event.key == "ArrowUp":
-                object.position.x -= this.ySpeed;
+                avatarObject.position.x -= ySpeed;
                 //camera.position.x -= ySpeed;
-                object.rotation.y = -Math.PI / 2;
+                avatarObject.rotation.y = -Math.PI / 2;
             break; 
             //move down
             case event.key == "s" || event.key == "ArrowDown":
-                object.position.x += this.ySpeed;
+                avatarObject.position.x += ySpeed;
                 //camera.position.x += ySpeed;
-                object.rotation.y = Math.PI / 2;
+                avatarObject.rotation.y = Math.PI / 2;
             break; 
             //move left
-            case event.key == "a" || event.which == "ArrowLeft":
-                object.position.z += this.xSpeed;
+            case event.key == "a" || event.key == "ArrowLeft":
+                avatarObject.position.z += xSpeed;
                 //camera.position.z += xSpeed;
-                object.rotation.y = 0;
+                avatarObject.rotation.y = 0;
             break; 
             //move right
             case event.key == "d" || event.key == "ArrowRight":
-                object.position.z -= this.xSpeed;
+                avatarObject.position.z -= xSpeed;
                 //camera.position.z -= xSpeed;
-                object.rotation.y = Math.PI;
+                avatarObject.rotation.y = Math.PI;
             break; 
         }
     };
-    
     document.onkeyup = function(){
-        if (object.position.x > 1) { this.xSpeed = -0.02; this.ySpeed = -0.02; }
-        else { this.xSpeed = 0.02; this.ySpeed = 0.02; }
+        if (avatarObject.position.x > 1) { xSpeed = -0.02; ySpeed = -0.02; }
+        else { xSpeed = 0.02; ySpeed = 0.02; }
     };
 };

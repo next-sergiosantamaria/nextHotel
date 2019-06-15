@@ -31,37 +31,97 @@ html,body {
   transition: all ease-out 3s;
 }
 
-.hotelLogo{
-  width: 180px;
-  position: absolute;
-  left: 10px;
-  bottom: 50px;
-}
-
-.clanLogo{
-  position: absolute;
-  width: 70px;
-  top: 30px;
-  right: 30px;
-}
-
-.plantSelectMenu{
-  width: 200px;
+.mainScreen{
+  width: 100%;
   height: 100%;
   position: absolute;
   top: 0px;
   left: 0px;
   padding: 20px 10px;
   background-color: #222222;
-
 }
 
+.clanLogo{
+  position: absolute;
+  width: 90px;
+  top: 30px;
+  right: 30px;
+  cursor: pointer;
+}
+
+.logosBox{
+  position: absolute;
+  width: 220px;
+  top: 0;
+  bottom: 100px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  height: 150px;
+}
+
+.hotelLogo, .nextLogo {
+  width: 100%;
+}
+.startButon {
+  width: 100%;
+  margin-top: 25px;
+  background-color: #00cdce;
+  color: white;
+  border-radius: 2px;
+  cursor: pointer;
+  text-align: center;
+  padding: 20px 0px;
+  font-size: 18px;
+}
+.avatarConfigBox, .officeSelectorMenu {
+  position: absolute;
+  width: 500px;
+  top: 100px;
+  bottom: 0;
+  left: 1800px;
+  right: 0;
+  margin: auto;
+  height: 70%;
+}
+.avatarConfig {
+  width: 100%;
+  height: 80%;
+  background-color: #58bdfe;
+}
 .plantSelectButton{
   text-align: center;
   padding: 5px;
-  background-color:#00cdce;
+  background-color: #00cdce;
   border-radius: 2px;
   color: white;
   cursor: pointer;
   margin-bottom: 10px;
+  position: relative;
+  width: 43%;
+  float: left;
+  margin-right: 3%;
+  height: 35%;
 }
+.navigateButtons{
+  width: 100%;
+}
+.navigateBackButton, .navigateContinueButton{
+  width: 45%;
+  background-color: #2ecbcc;
+  color: white;
+  text-align: center;
+  font-size: 18px;
+  padding: 16px 0px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+.navigateContinueButton{
+  float: right;
+  border-radius: 0px 30px 30px 0px;
+}
+.navigateBackButton {
+  float: left;
+  border-radius: 30px 0px 0px 30px;
+}
+
