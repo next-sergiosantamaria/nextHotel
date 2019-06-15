@@ -26,25 +26,29 @@ keyControls = function(avatarObject) {
             case event.key == "w" || event.key == "ArrowUp":
                 avatarObject.position.x -= ySpeed;
                 //camera.position.x -= ySpeed;
-                avatarObject.rotation.y = -Math.PI / 2;
+                if( ySpeed > 0) avatarObject.rotation.y = -Math.PI / 2;
+                else avatarObject.rotation.y = Math.PI / 2;
             break; 
             //move down
             case event.key == "s" || event.key == "ArrowDown":
                 avatarObject.position.x += ySpeed;
                 //camera.position.x += ySpeed;
-                avatarObject.rotation.y = Math.PI / 2;
+                if( ySpeed > 0) avatarObject.rotation.y = Math.PI / 2;
+                else avatarObject.rotation.y = -Math.PI / 2;
             break; 
             //move left
             case event.key == "a" || event.key == "ArrowLeft":
                 avatarObject.position.z += xSpeed;
                 //camera.position.z += xSpeed;
-                avatarObject.rotation.y = 0;
+                if(xSpeed > 0) avatarObject.rotation.y = 0;
+                else avatarObject.rotation.y = Math.PI;
             break; 
             //move right
             case event.key == "d" || event.key == "ArrowRight":
                 avatarObject.position.z -= xSpeed;
                 //camera.position.z -= xSpeed;
-                avatarObject.rotation.y = Math.PI;
+                if(xSpeed > 0) avatarObject.rotation.y = Math.PI;
+                else avatarObject.rotation.y = 0;
             break; 
         }
     };
