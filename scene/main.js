@@ -1,6 +1,6 @@
 window.addEventListener('resize', onWindowResize, false);
 
-let camera, scene, renderer, controls, 
+let camera, scene, renderer, controls,
     width = window.innerWidth,
     height = window.innerHeight;
 
@@ -16,7 +16,13 @@ planta.name = 'planta';
 let avatar = new THREE.Object3D();
 avatar.name = 'avatar';
 
-let plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
+const plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
+const modelos_head = ['head_1', 'head_2','head_3'];
+const modelos_body = ['body_1','body_2','body_3'];
+
+let initialBody = initialHead = 0;
+
+let avataConfig = { head: 'head_1', body: 'body_1' };
 
 const avatarControls = new keyControls(avatar);
 
@@ -30,6 +36,27 @@ function generateMenu(){
     plantas.map(function(plantName){
         $(".officeSelectorMenu").prepend('<div class="plantSelectButton" onclick=loadOffice("'+plantName+'")>'+plantName+'</div>');
     });
+}
+
+function setHead(value){
+    initialHead += value;
+    if(initialHead < 0) initialHead = modelos_head.length -1;
+    if(initialHead > modelos_head.length -1) initialHead = 0;
+    console.log(initialHead);
+    if( typeof modelos_head[initialHead] !== 'undefined'  ) {
+        document.getElementById("selectorHeadBox").src = 'images/avatarHeads/'+ modelos_head[initialHead] +'.png';
+        avataConfig.head = modelos_head[initialHead];
+    }
+}
+
+function setBody(value){
+    initialBody += value;
+    if(initialBody < 0) initialBody = modelos_body.length -1;
+    if(initialBody > modelos_body.length -1) initialBody = 0;
+    if( typeof modelos_body[initialBody] !== 'undefined'  ) {
+        document.getElementById("selectorBodyBox").src = 'images/avatarBodies/'+ modelos_body[initialBody] +'.png';
+        avataConfig.body = modelos_body[initialBody];
+    }
 }
 
 function initRender() {
@@ -49,7 +76,7 @@ function initRender() {
     let container = document.getElementById('container');
     container.appendChild(element);
     element.id = "svgObject";
-    
+
     scene.add(avatar);
     scene.add(planta);
 
@@ -67,16 +94,16 @@ function initRender() {
     controls.enablePan = true;
     controls.target.set(0,0,0);*/
 
-    ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    ambientLight = new THREE.AmbientLight(0xffffff, 1);
     ambientLight.position.set(0, 0.6, 0);
     scene.add(ambientLight);
 
-    let directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+    let directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
     directionalLight.position.set(3,3,3);
     scene.add( directionalLight );
 }
 
-function loadAvatar() {
+function loadAvatar(parts) {
     let onProgress = function (xhr) {
         if (xhr.lengthComputable) {
             let percentComplete = xhr.loaded / xhr.total * 100;
@@ -87,31 +114,31 @@ function loadAvatar() {
     };
     let onError = function (xhr) {
     };
-    
+
     let headLoader = new THREE.MTLLoader();
     headLoader.setPath('models/avatars/heads/');
     headLoader.setMaterialOptions ( { side: THREE.DoubleSide } );
-    headLoader.load('head_2'+'.mtl', function (materials) {
+    headLoader.load( parts.head +'.mtl', function (materials) {
         materials.preload();
         let headObjLoader = new THREE.OBJLoader();
         headObjLoader.setMaterials(materials);
         headObjLoader.setPath('models/avatars/heads/');
-        headObjLoader.load('head_2'+'.obj', function (elements) {
+        headObjLoader.load( parts.head+'.obj', function (elements) {
             avatar.add(elements);
-        }, onProgress, onError); 
+        }, onProgress, onError);
     });
-    
+
     let mtlLoader = new THREE.MTLLoader();
     mtlLoader.setPath('models/avatars/bodies/');
     mtlLoader.setMaterialOptions ( { side: THREE.DoubleSide } );
-    mtlLoader.load('body_2'+'.mtl', function (materials) {
+    mtlLoader.load( parts.body +'.mtl', function (materials) {
         materials.preload();
         let objLoader = new THREE.OBJLoader();
         objLoader.setMaterials(materials);
         objLoader.setPath('models/avatars/bodies/');
-        objLoader.load('body_2'+'.obj', function (elements) {
+        objLoader.load( parts.body +'.obj', function (elements) {
             avatar.add(elements);
-        }, onProgress, onError); 
+        }, onProgress, onError);
     });
 }
 
@@ -129,7 +156,7 @@ function loadOffice(officeName) {
     };
     let onError = function (xhr) {
     };
-    
+
     let mtlLoader = new THREE.MTLLoader();
     mtlLoader.setPath('models/');
     mtlLoader.setMaterialOptions ( { side: THREE.DoubleSide } );
@@ -142,7 +169,7 @@ function loadOffice(officeName) {
             elements.children.map(function(interactiveObject) {
                 interactiveObject.name = interactiveObject.name.replace(/_[a-z]*.[0-9]*/gi, "");
                 if(Array.isArray(interactiveObject.material)){
-                    interactiveObject.material.map(function(mat){ 
+                    interactiveObject.material.map(function(mat){
                         if(mat.name.substring(0,11) == 'transparent') mat.transparent = true;
                     });
                 }
@@ -151,8 +178,8 @@ function loadOffice(officeName) {
             elements.name = officeName;
             planta.add(elements);
             $('#container').addClass('displayOn');
-            loadAvatar();
-        }, onProgress, onError); 
+            loadAvatar(avataConfig);
+        }, onProgress, onError);
     });
 }
 
@@ -165,9 +192,9 @@ function onWindowResize() {
 function animate() {
   requestAnimationFrame(animate);
   camera.updateMatrixWorld();
-  
+
   camera.lookAt(avatar.position);
-  
+
   if (controls) {
     controls.update(clock.getDelta());
   }

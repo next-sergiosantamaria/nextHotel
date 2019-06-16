@@ -18,14 +18,26 @@
             <div onclick="tl.tweenTo('configAvatar')" class="startButon">Comenzar</div>
         </div>
         <div id="avatarConfigBox" class="avatarConfigBox">
-            <div class="avatarConfig"></div>
+            <div class="stepTitle">Personaliza tu avatar:</div>
+            <div class="avatarConfig">
+                <div class="avatarconfigSelectSection">
+                    <div onclick="setHead(-1)" class="leftSelectorArrow"></div>
+                    <div class="selectorBox"><img id="selectorHeadBox" class="selectorImage" src="images/avatarHeads/head_1.png" /></div>
+                    <div onclick="setHead(1)" class="rightSelectorArrow"></div>
+                </div>
+                <div class="avatarconfigSelectSection">
+                    <div  onclick="setBody(-1)" class="leftSelectorArrow"></div>
+                    <div class="selectorBox"><img id="selectorBodyBox" class="selectorImage" src="images/avatarBodies/body_1.png" /></div>
+                    <div  onclick="setBody(1)" class="rightSelectorArrow"></div>
+                </div>
+            </div>
             <div class="navigateButtons">
                 <div onclick="tl.reverse()" class="navigateBackButton">Volver</div>
                 <div onclick="tl.tweenTo('selectOffice')" class="navigateContinueButton">Continuar</div>
             </div>
         </div>
         <div id="officeSelectorMenu" class="officeSelectorMenu">
-                <div onclick="tl.tweenTo('configAvatar')" class="navigateBackButton">Volver</div>
+            <div onclick="tl.tweenTo('configAvatar')" class="navigateBackButton">Volver</div>
         </div>
     </div>
     <img onclick="window.open('https://sites.google.com/bbva.com/hciclan','new_window');" class="clanLogo" src="./images/logoHCI_small.png"></img>
