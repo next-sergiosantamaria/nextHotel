@@ -77,22 +77,19 @@ function initRender() {
     container.appendChild(element);
     element.id = "svgObject";
 
-    scene.add(avatar);
-    scene.add(planta);
-
     camera = new THREE.PerspectiveCamera(60, (width / height), 0.01, 10000000);
     camera.position.set(1, 2, 0);
     camera.lookAt(avatar.position);
 
     scene.add(camera);
 
-    /*controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = false;
-    controls.dampingFactor = 0.70;
-    controls.enableZoom = false;
-    controls.enableRotate = false;
-    controls.enablePan = true;
-    controls.target.set(0,0,0);*/
+    // controls = new THREE.OrbitControls(camera, renderer.domElement);
+    // controls.enableDamping = false;
+    // controls.dampingFactor = 0.70;
+    // controls.enableZoom = false;
+    // controls.enableRotate = true;
+    // controls.enablePan = true;
+    // controls.target.set(0,0,0);
 
     ambientLight = new THREE.AmbientLight(0xffffff, 1);
     ambientLight.position.set(0, 0.6, 0);
@@ -104,6 +101,8 @@ function initRender() {
 }
 
 function loadAvatar(parts) {
+    avatar.remove(avatar.children[1]);
+    avatar.remove(avatar.children[0]);
     let onProgress = function (xhr) {
         if (xhr.lengthComputable) {
             let percentComplete = xhr.loaded / xhr.total * 100;
@@ -140,6 +139,7 @@ function loadAvatar(parts) {
             avatar.add(elements);
         }, onProgress, onError);
     });
+    scene.add(avatar);
 }
 
 function loadOffice(officeName) {
@@ -181,6 +181,7 @@ function loadOffice(officeName) {
             loadAvatar(avataConfig);
         }, onProgress, onError);
     });
+    scene.add(planta);
 }
 
 function onWindowResize() {
