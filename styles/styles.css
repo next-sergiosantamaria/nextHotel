@@ -1,6 +1,7 @@
 @font-face {
     font-family: bbvaweb;
-    src: url(fuentes/bbvaweb-light.ttf);
+    /*src: url(fuentes/bbvaweb-light.ttf);*/
+    src: url(fuentes/PressStart2P-Regular.ttf);
 }
 html,body {
 	margin: 0;
@@ -68,15 +69,14 @@ html,body {
   margin-top: 25px;
   background-color: #00cdce;
   color: white;
-  border-radius: 2px;
   cursor: pointer;
   text-align: center;
   padding: 20px 0px;
-  font-size: 18px;
+  font-size: 16px;
 }
 .stepTitle{
   color: white;
-  font-size: 24px;
+  font-size: 16px;
   padding: 20px 0px;
 }
 .avatarConfigBox, .officeSelectorMenu {
@@ -106,16 +106,10 @@ html,body {
 .leftSelectorArrow{
   animation: breathing 2s ease-out infinite normal;
   position: absolute;
-  left: 20px;
-  top: 0;
-  bottom: 0;
-  margin: auto;
-  width: 0;
-  height: 0;
+  left: 10px;
   cursor: pointer;
-  border-top: 60px solid transparent;
-  border-right: 40px solid white;
-  border-bottom: 60px solid transparent;
+  width: 20%;
+  height: 100%;
 }
 .selectorImage{
   position: absolute;
@@ -126,30 +120,27 @@ html,body {
   margin: auto;
   height: 70%;
 }
-.selectorBox{
-  display: block;
-  width: auto;
-  height: 100%;
-}
 .rightSelectorArrow{
   animation: breathing 2s ease-out infinite normal;
   position: absolute;
-  right: 20px;
+  right: 10px;
+  cursor: pointer;
+  width: 20%;
+  height: 100%;
+}
+
+.rightSelectorArrow > img, .leftSelectorArrow > img{
+  width: 100%;
+  position: absolute;
   top: 0;
   bottom: 0;
   margin: auto;
-  width: 0;
-  height: 0;
-  cursor: pointer;
-  border-top: 60px solid transparent;
-  border-left: 40px solid white;
-  border-bottom: 60px solid transparent;
 }
+
 .plantSelectButton{
   text-align: center;
   padding: 5px;
   background-color: #00cdce;
-  border-radius: 2px;
   color: white;
   cursor: pointer;
   margin-bottom: 10px;
@@ -158,6 +149,8 @@ html,body {
   float: left;
   margin-right: 3%;
   height: 35%;
+  font-size: 12px;
+  padding-top: 16px;
 }
 .navigateButtons{
   width: 100%;
@@ -167,18 +160,37 @@ html,body {
   background-color: #2ecbcc;
   color: white;
   text-align: center;
-  font-size: 18px;
+  font-size: 12px;
   padding: 16px 0px;
   margin-top: 10px;
   cursor: pointer;
 }
+.navigateBackButton::before{
+  content: '';
+  background-image: url(../images/arrowPixel.png);
+  background-size: 20px 23px;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-repeat: no-repeat;
+  margin-right: 10%;
+}
+
+.navigateContinueButton::after{
+  content: '';
+  background-image: url(../images/arrowPixelRight.png);
+  background-size: 20px 23px;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-repeat: no-repeat;
+  margin-left: 10%;
+}
 .navigateContinueButton{
   float: right;
-  border-radius: 0px 30px 30px 0px;
 }
 .navigateBackButton {
   float: left;
-  border-radius: 30px 0px 0px 30px;
 }
 .minButton{
   position: absolute;
