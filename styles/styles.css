@@ -1,6 +1,7 @@
 @font-face {
     font-family: bbvaweb;
-    src: url(fuentes/bbvaweb-light.ttf);
+    /*src: url(fuentes/bbvaweb-light.ttf);*/
+    src: url(fuentes/PressStart2P-Regular.ttf);
 }
 html,body {
 	margin: 0;
@@ -31,37 +32,219 @@ html,body {
   transition: all ease-out 3s;
 }
 
-.hotelLogo{
-  width: 180px;
-  position: absolute;
-  left: 10px;
-  bottom: 50px;
-}
-
-.clanLogo{
-  position: absolute;
-  width: 70px;
-  top: 30px;
-  right: 30px;
-}
-
-.plantSelectMenu{
-  width: 200px;
+.mainScreen{
+  width: 100%;
   height: 100%;
   position: absolute;
   top: 0px;
   left: 0px;
   padding: 20px 10px;
   background-color: #222222;
+}
 
+.clanLogo{
+  position: absolute;
+  width: 90px;
+  top: 30px;
+  right: 30px;
+  cursor: pointer;
+}
+
+.logosBox{
+  position: absolute;
+  width: 220px;
+  top: 0;
+  bottom: 100px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  height: 150px;
+}
+
+.hotelLogo, .nextLogo {
+  width: 100%;
+}
+.startButon {
+  width: 100%;
+  margin-top: 25px;
+  background-color: #00cdce;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  padding: 20px 0px;
+  font-size: 16px;
+}
+.stepTitle{
+  color: white;
+  font-size: 16px;
+  padding: 20px 0px;
+}
+.avatarConfigBox, .officeSelectorMenu {
+  position: absolute;
+  width: 500px;
+  top: 0;
+  bottom: 0;
+  left: 1800px;
+  right: 0;
+  margin: auto;
+  height: 70%;
+}
+.avatarConfig {
+  width: 100%;
+  height: 80%;
+  background-color: #58bdfe;
+  padding: 1px;
+  position: relative;
+}
+.avatarconfigSelectSection{
+  width: 100%;
+  height: 50%;
+  background-color: #222222;
+  position: relative;
+  float: left;
+}
+.leftSelectorArrow{
+  animation: breathing 2s ease-out infinite normal;
+  position: absolute;
+  left: 10px;
+  cursor: pointer;
+  width: 20%;
+  height: 100%;
+}
+.selectorImage{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  height: 70%;
+}
+.rightSelectorArrow{
+  animation: breathing 2s ease-out infinite normal;
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  width: 20%;
+  height: 100%;
+}
+
+.rightSelectorArrow > img, .leftSelectorArrow > img{
+  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
 }
 
 .plantSelectButton{
   text-align: center;
   padding: 5px;
-  background-color:#00cdce;
-  border-radius: 2px;
+  background-color: #00cdce;
   color: white;
   cursor: pointer;
   margin-bottom: 10px;
+  position: relative;
+  width: 43%;
+  float: left;
+  margin-right: 3%;
+  height: 35%;
+  font-size: 12px;
+  padding-top: 16px;
 }
+.navigateButtons{
+  width: 100%;
+}
+.navigateBackButton, .navigateContinueButton{
+  width: 45%;
+  background-color: #2ecbcc;
+  color: white;
+  text-align: center;
+  font-size: 12px;
+  padding: 16px 0px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+.navigateBackButton::before{
+  content: '';
+  background-image: url(../images/arrowPixel.png);
+  background-size: 20px 23px;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-repeat: no-repeat;
+  margin-right: 10%;
+}
+
+.navigateContinueButton::after{
+  content: '';
+  background-image: url(../images/arrowPixelRight.png);
+  background-size: 20px 23px;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-repeat: no-repeat;
+  margin-left: 10%;
+}
+.navigateContinueButton{
+  float: right;
+}
+.navigateBackButton {
+  float: left;
+}
+.minButton{
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  width: 15%;
+}
+
+@-webkit-keyframes breathing {
+  0% {
+    -webkit-transform: scale(0.9);
+    transform: scale(0.9);
+  }
+
+  25% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+
+  60% {
+    -webkit-transform: scale(0.9);
+    transform: scale(0.9);
+  }
+
+  100% {
+    -webkit-transform: scale(0.9);
+    transform: scale(0.9);
+  }
+}
+
+@keyframes breathing {
+  0% {
+    -webkit-transform: scale(0.9);
+    -ms-transform: scale(0.9);
+    transform: scale(0.9);
+  }
+
+  25% {
+    -webkit-transform: scale(1);
+    -ms-transform: scale(1);
+    transform: scale(1);
+  }
+
+  60% {
+    -webkit-transform: scale(0.9);
+    -ms-transform: scale(0.9);
+    transform: scale(0.9);
+  }
+
+  100% {
+    -webkit-transform: scale(0.9);
+    -ms-transform: scale(0.9);
+    transform: scale(0.9);
+  }
+}
+
+

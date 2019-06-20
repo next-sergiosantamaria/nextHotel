@@ -10,11 +10,39 @@
     <meta name="mobile-web-app-capable" content="yes">
 </head>
 <body class="darkBack">
-    <div id="container" class="displayOff"></div>
-    <div class="plantSelectMenu">
-        <img class="hotelLogo" src="./models/LOGO_HotelNext_v2.png"></img>
+    <div id="container" class="displayOff">
+        <div onclick="tl.tweenTo('selectOffice')" class="navigateBackButton minButton">Volver</div>
     </div>
-    <img class="clanLogo" src="./models/logo4B.png"></img>
+    <div id="mainScreen" class="mainScreen">
+        <div id="logosBox" class="logosBox">
+            <img id="nextLogo" class="nextLogo" src="./images/next_logo_solo.png"></img>
+            <img id="hotelLogo" class="hotelLogo" src="./images/hotel_logo_solo.png"></img>
+            <div onclick="tl.tweenTo('configAvatar')" class="startButon">Comenzar</div>
+        </div>
+        <div id="avatarConfigBox" class="avatarConfigBox">
+            <div class="stepTitle">Personaliza tu avatar:</div>
+            <div class="avatarConfig">
+                <div class="avatarconfigSelectSection">
+                    <div onclick="setHead(-1)" class="leftSelectorArrow"><img src="images/arrowPixel.png" /></div>
+                    <div><img id="selectorHeadBox" class="selectorImage" src="images/avatarHeads/head_1.png" /></div>
+                    <div onclick="setHead(1)" class="rightSelectorArrow"><img src="images/arrowPixelRight.png" /></div>
+                </div>
+                <div class="avatarconfigSelectSection">
+                    <div  onclick="setBody(-1)" class="leftSelectorArrow"><img src="images/arrowPixel.png" /></div>
+                    <div><img id="selectorBodyBox" class="selectorImage" src="images/avatarBodies/body_1.png" /></div>
+                    <div  onclick="setBody(1)" class="rightSelectorArrow"><img src="images/arrowPixelRight.png" /></div>
+                </div>
+            </div>
+            <div class="navigateButtons">
+                <div onclick="tl.reverse()" class="navigateBackButton">Volver</div>
+                <div onclick="tl.tweenTo('selectOffice')" class="navigateContinueButton">Continuar</div>
+            </div>
+        </div>
+        <div id="officeSelectorMenu" class="officeSelectorMenu">
+            <div onclick="tl.tweenTo('configAvatar')" class="navigateBackButton">Volver</div>
+        </div>
+    </div>
+    <img onclick="window.open('https://sites.google.com/bbva.com/hciclan','new_window');" class="clanLogo" src="./images/logoHCI_small.png"></img>
 
     <script type="text/javascript" src="libs/jquery-2.1.0.min.js"></script>
 
@@ -28,6 +56,8 @@
     <script type="text/javascript" src="libs/MTLLoader.js"></script>
     <script type="text/javascript" src="libs/OBJLoader.js"></script>
     <script type="text/javascript" src="libs/tween.js"></script>
+    <script type="text/javascript" src="libs/TweenMax.min.js"></script>
+    <script src="./scene/animations.js"></script>
     <script src="./scene/characterControls.js"></script>
     <script src="./scene/main.js"></script>
 </body>

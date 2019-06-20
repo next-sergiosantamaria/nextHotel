@@ -1,26 +1,30 @@
-let camera, scene, renderer, controls, 
+window.addEventListener('resize', onWindowResize, false);
+
+let camera, scene, renderer, controls,
     width = window.innerWidth,
     height = window.innerHeight;
-
-let xSpeed = ySpeed = 0.02;
 
 let clock = new THREE.Clock();
 let raycaster = new THREE.Raycaster();
 let mouse = new THREE.Vector2();
 
-let mouseClicked = false;
-
 let manager = new THREE.LoadingManager();
 
-let interactivos = new THREE.Object3D();
-interactivos.name = 'interactiveElements';
+let planta = new THREE.Object3D();
+planta.name = 'planta';
 
 let avatar = new THREE.Object3D();
 avatar.name = 'avatar';
 
-let plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
+const plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
+const modelos_head = ['head_1', 'head_2','head_3'];
+const modelos_body = ['body_1','body_2','body_3'];
 
-const avatarControls = new keyControls();
+let initialBody = initialHead = 0;
+
+let avataConfig = { head: 'head_1', body: 'body_1' };
+
+const avatarControls = new keyControls(avatar);
 
 $(document).ready(function () {
     generateMenu();
@@ -30,8 +34,29 @@ $(document).ready(function () {
 
 function generateMenu(){
     plantas.map(function(plantName){
-        $(".plantSelectMenu").append('<div class="plantSelectButton" onclick=loadOffice("'+plantName+'")>'+plantName+'</div>');
+        $(".officeSelectorMenu").prepend('<div class="plantSelectButton" onclick=loadOffice("'+plantName+'")>'+plantName+'</div>');
     });
+}
+
+function setHead(value){
+    initialHead += value;
+    if(initialHead < 0) initialHead = modelos_head.length -1;
+    if(initialHead > modelos_head.length -1) initialHead = 0;
+    console.log(initialHead);
+    if( typeof modelos_head[initialHead] !== 'undefined'  ) {
+        document.getElementById("selectorHeadBox").src = 'images/avatarHeads/'+ modelos_head[initialHead] +'.png';
+        avataConfig.head = modelos_head[initialHead];
+    }
+}
+
+function setBody(value){
+    initialBody += value;
+    if(initialBody < 0) initialBody = modelos_body.length -1;
+    if(initialBody > modelos_body.length -1) initialBody = 0;
+    if( typeof modelos_body[initialBody] !== 'undefined'  ) {
+        document.getElementById("selectorBodyBox").src = 'images/avatarBodies/'+ modelos_body[initialBody] +'.png';
+        avataConfig.body = modelos_body[initialBody];
+    }
 }
 
 function initRender() {
@@ -50,9 +75,7 @@ function initRender() {
 
     let container = document.getElementById('container');
     container.appendChild(element);
-    
-    scene.add(avatar);
-    scene.add(interactivos);
+    element.id = "svgObject";
 
     camera = new THREE.PerspectiveCamera(60, (width / height), 0.01, 10000000);
     camera.position.set(1, 2, 0);
@@ -60,30 +83,26 @@ function initRender() {
 
     scene.add(camera);
 
-    /*controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = false;
-    controls.dampingFactor = 0.70;
-    controls.enableZoom = false;
-    controls.enableRotate = false;
-    controls.enablePan = true;
-    controls.target.set(0,0,0);*/
+    // controls = new THREE.OrbitControls(camera, renderer.domElement);
+    // controls.enableDamping = false;
+    // controls.dampingFactor = 0.70;
+    // controls.enableZoom = false;
+    // controls.enableRotate = true;
+    // controls.enablePan = true;
+    // controls.target.set(0,0,0);
 
-    ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    ambientLight = new THREE.AmbientLight(0xffffff, 1);
     ambientLight.position.set(0, 0.6, 0);
     scene.add(ambientLight);
 
-    let directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+    let directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
     directionalLight.position.set(3,3,3);
     scene.add( directionalLight );
-
-    window.addEventListener('resize', onWindowResize, false);
-    document.getElementById('container').addEventListener( 'mousemove', onMouseMove, false );
-    document.getElementById('container').addEventListener ("mousedown", function () {mouseClicked = true}, false);
-    document.getElementById('container').addEventListener ("mouseup", function () {mouseClicked = false}, false);
-   
 }
 
-function loadAvatar() {
+function loadAvatar(parts) {
+    avatar.remove(avatar.children[1]);
+    avatar.remove(avatar.children[0]);
     let onProgress = function (xhr) {
         if (xhr.lengthComputable) {
             let percentComplete = xhr.loaded / xhr.total * 100;
@@ -94,28 +113,39 @@ function loadAvatar() {
     };
     let onError = function (xhr) {
     };
-    
+
+    let headLoader = new THREE.MTLLoader();
+    headLoader.setPath('models/avatars/heads/');
+    headLoader.setMaterialOptions ( { side: THREE.DoubleSide } );
+    headLoader.load( parts.head +'.mtl', function (materials) {
+        materials.preload();
+        let headObjLoader = new THREE.OBJLoader();
+        headObjLoader.setMaterials(materials);
+        headObjLoader.setPath('models/avatars/heads/');
+        headObjLoader.load( parts.head+'.obj', function (elements) {
+            avatar.add(elements);
+        }, onProgress, onError);
+    });
+
     let mtlLoader = new THREE.MTLLoader();
-    mtlLoader.setPath('models/');
+    mtlLoader.setPath('models/avatars/bodies/');
     mtlLoader.setMaterialOptions ( { side: THREE.DoubleSide } );
-    mtlLoader.load('avatar_import'+'.mtl', function (materials) {
-        console.log(materials);
+    mtlLoader.load( parts.body +'.mtl', function (materials) {
         materials.preload();
         let objLoader = new THREE.OBJLoader();
         objLoader.setMaterials(materials);
-        objLoader.setPath('models/');
-        objLoader.load('avatar_import'+'.obj', function (elements) {
+        objLoader.setPath('models/avatars/bodies/');
+        objLoader.load( parts.body +'.obj', function (elements) {
             avatar.add(elements);
-            //elements.position.set(0,0,-2.22);
-        }, onProgress, onError); 
+        }, onProgress, onError);
     });
+    scene.add(avatar);
 }
 
 function loadOffice(officeName) {
+    tl.tweenTo("openApp");
     $('#container').removeClass('displayOn');
-
-    interactivos.remove(interactivos.children[0]);
-
+    planta.remove(planta.children[0]);
     let onProgress = function (xhr) {
         if (xhr.lengthComputable) {
             let percentComplete = xhr.loaded / xhr.total * 100;
@@ -126,7 +156,7 @@ function loadOffice(officeName) {
     };
     let onError = function (xhr) {
     };
-    
+
     let mtlLoader = new THREE.MTLLoader();
     mtlLoader.setPath('models/');
     mtlLoader.setMaterialOptions ( { side: THREE.DoubleSide } );
@@ -138,66 +168,20 @@ function loadOffice(officeName) {
         objLoader.load(officeName+'.obj', function (elements) {
             elements.children.map(function(interactiveObject) {
                 interactiveObject.name = interactiveObject.name.replace(/_[a-z]*.[0-9]*/gi, "");
-                //console.log(interactiveObject.material);
                 if(Array.isArray(interactiveObject.material)){
-                    interactiveObject.material.map(function(mat){ 
+                    interactiveObject.material.map(function(mat){
                         if(mat.name.substring(0,11) == 'transparent') mat.transparent = true;
                     });
                 }
                 else if(interactiveObject.material.name.substring(0,11) == 'transparent') interactiveObject.material.transparent = true;
             });
             elements.name = officeName;
-            interactivos.add(elements);
+            planta.add(elements);
             $('#container').addClass('displayOn');
-            loadAvatar();
-        }, onProgress, onError); 
+            loadAvatar(avataConfig);
+        }, onProgress, onError);
     });
-}
-
-document.onkeydown = function(event) {
-    switch( true ){
-        case event.which == 87 || event.which == 38:
-            avatar.position.x -= ySpeed;
-            //camera.position.x -= ySpeed;
-            avatar.rotation.y = -Math.PI / 2;
-        break; 
-        case event.which == 83 || event.which == 40:
-            avatar.position.x += ySpeed;
-            //camera.position.x += ySpeed;
-            avatar.rotation.y = Math.PI / 2;
-        break; 
-        case event.which == 65 || event.which == 37:
-            avatar.position.z += xSpeed;
-            //camera.position.z += xSpeed;
-            avatar.rotation.y = 0;
-        break; 
-        case event.which == 68 || event.which == 39:
-            avatar.position.z -= xSpeed;
-            //camera.position.z -= xSpeed;
-            avatar.rotation.y = Math.PI;
-        break; 
-    }
-};
-
-document.onkeyup = function(){
-    if (avatar.position.x > 1) { xSpeed = -0.02; ySpeed = -0.02; }
-    else  { xSpeed = 0.02; ySpeed = 0.02; }
-};
-
-function onMouseMove( event ) {
-    mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
-    mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
-    raycaster.setFromCamera( mouse, camera );
-    if( interactivos.children.length > 0 ) {
-        let intersects = raycaster.intersectObject( interactivos.children[0].children[0]);
-        if ( intersects.length > 0 ) {
-            if(mouseClicked) {
-                //console.log(intersects[0].point);
-                movement({ x: intersects[0].point.x, y: 0, z: intersects[0].point.z }, avatar.position, 0, 4000, TWEEN.Easing.Quartic.Out);
-                avatar.lookAt( intersects[0].point.x, 0, intersects[0].point.z );
-                }
-            }
-        }
+    scene.add(planta);
 }
 
 function onWindowResize() {
@@ -209,9 +193,9 @@ function onWindowResize() {
 function animate() {
   requestAnimationFrame(animate);
   camera.updateMatrixWorld();
-  
+
   camera.lookAt(avatar.position);
-  
+
   if (controls) {
     controls.update(clock.getDelta());
   }
@@ -232,4 +216,3 @@ function movement(value, object, delay, duration, easingType) {
         .delay(delay)
         .start();
 }
-
