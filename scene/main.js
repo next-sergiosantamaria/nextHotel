@@ -17,7 +17,7 @@ let avatar = new THREE.Object3D();
 avatar.name = 'avatar';
 
 const plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
-const modelos_head = ['head_1', 'head_2','head_3'];
+const modelos_head = ['head_1', 'head_2','head_3', 'head_4'];
 const modelos_body = ['body_1','body_2','body_3'];
 
 let initialBody = initialHead = 0;
