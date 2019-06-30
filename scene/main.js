@@ -207,7 +207,6 @@ function loadOffice(officeName) {
     scene.add(planta);
     if(debbugerSkipOption == true) {
         Object.assign(saveData, avatarConfig, { office: officeName });
-        console.log(saveData);
         localStorage.setItem('configDataObject', JSON.stringify(saveData));
     }
 }
@@ -232,6 +231,10 @@ function animate() {
 
   if (controls) {
     controls.update(clock.getDelta());
+  }
+  if ( avatarControls != undefined ) {
+        avatar.position.z += avatarControls.direction.z;
+        avatar.position.x -= avatarControls.direction.x;
   }
   render();
   TWEEN.update();
