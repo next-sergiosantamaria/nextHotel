@@ -11,8 +11,6 @@ let camera, scene, renderer, controls, avatarControls,
     height = window.innerHeight;
 
 let clock = new THREE.Clock();
-let raycaster = new THREE.Raycaster();
-let mouse = new THREE.Vector2();
 
 let manager = new THREE.LoadingManager();
 
@@ -21,6 +19,8 @@ planta.name = 'planta';
 
 let avatar = new THREE.Object3D();
 avatar.name = 'avatar';
+
+let cubes = [];
 
 const plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
 const modelos_head = ['head_1', 'head_2','head_3', 'head_4', 'head_5'];
@@ -162,6 +162,12 @@ function loadAvatar(parts) {
             avatar.add(elements);
         }, onProgress, onError);
     });
+    var collisionCubeGeometry = new THREE.BoxGeometry(0.07, 0.06, 0.06);
+    var collisionCubeMaterial = new THREE.MeshLambertMaterial({color: 0xff2255});
+    var collisionCube = new THREE.Mesh(collisionCubeGeometry, collisionCubeMaterial);
+    collisionCube.name = 'collisionCube';
+    collisionCube.position.y = 0.06;
+    avatar.add(collisionCube);
     scene.add(avatar);
 }
 
@@ -197,6 +203,7 @@ function loadOffice(officeName) {
                     });
                 }
                 else if(interactiveObject.material.name.substring(0,11) == 'transparent') interactiveObject.material.transparent = true;
+                cubes.push(interactiveObject);
             });
             elements.name = officeName;
             planta.add(elements);
@@ -217,6 +224,21 @@ function skipMenus(savedDatas){
     loadOffice(savedDatas.office); 
 }
 
+function checkCollision() {
+    var cube = scene.getObjectByName('collisionCube');
+    var originPoint = cube.position.clone();
+    for (var vertexIndex = 0; vertexIndex < cube.geometry.vertices.length; vertexIndex++) {
+        var localVertex = cube.geometry.vertices[vertexIndex].clone();
+        var globalVertex = localVertex.applyMatrix4(cube.matrix);
+        var directionVector = globalVertex.sub(cube.position);
+        var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
+        var collisionResults = ray.intersectObjects(cubes);
+        if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
+            console.log(collisionResults[0].object.name);
+        }
+    }
+}
+
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -224,24 +246,26 @@ function onWindowResize() {
 }
 
 function animate() {
-  requestAnimationFrame(animate);
-  camera.updateMatrixWorld();
+    setTimeout(function() {
+        requestAnimationFrame(animate);
+    }, 1000 / 30);
+    camera.updateMatrixWorld();
 
-  camera.lookAt(avatar.position);
-
-  if (controls) {
-    controls.update(clock.getDelta());
-  }
-  if ( avatarControls != undefined ) {
-        avatar.position.z += avatarControls.direction.z;
-        avatar.position.x -= avatarControls.direction.x;
-  }
-  render();
-  TWEEN.update();
+    if (controls) {
+        controls.update(clock.getDelta());
+    }
+    if ( avatarControls != undefined ) {
+            camera.lookAt(avatar.position);
+            avatar.position.z += avatarControls.direction.z;
+            avatar.position.x -= avatarControls.direction.x;
+    }
+    render();
+    TWEEN.update();
 }
 
 function render() {
     renderer.render(scene, camera);
+    if(scene.getObjectByName('cube'))checkCollision();
 }
 
 function movement(value, object, delay, duration, easingType) {
