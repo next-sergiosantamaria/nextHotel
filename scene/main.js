@@ -1,12 +1,16 @@
 window.addEventListener('resize', onWindowResize, false);
 
-let camera, scene, renderer, controls,
+//Debugg options
+//Select true for skip config menu and seek to scene directly
+let debbugerSkipOption = true;
+//select type of controls = "camera" for free camera control or "avatar" for avatar keys control
+const typeOfControls = "avatar"; // options: ["avatar", "camera"]
+
+let camera, scene, renderer, controls, avatarControls,
     width = window.innerWidth,
     height = window.innerHeight;
 
 let clock = new THREE.Clock();
-let raycaster = new THREE.Raycaster();
-let mouse = new THREE.Vector2();
 
 let manager = new THREE.LoadingManager();
 
@@ -16,20 +20,26 @@ planta.name = 'planta';
 let avatar = new THREE.Object3D();
 avatar.name = 'avatar';
 
+let cubes = [];
+
 const plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
-const modelos_head = ['head_1', 'head_2','head_3'];
-const modelos_body = ['body_1','body_2','body_3'];
+const modelos_head = ['head_1', 'head_2','head_3', 'head_4', 'head_5'];
+const modelos_body = ['body_1','body_2','body_3','body_4', 'body_5', 'body_6'];
 
 let initialBody = initialHead = 0;
 
-let avataConfig = { head: 'head_1', body: 'body_1' };
+let avatarConfig = { head: 'head_1', body: 'body_1' };
 
-const avatarControls = new keyControls(avatar);
+let saveData = {};
 
 $(document).ready(function () {
     generateMenu();
     initRender();
     animate();
+    if(localStorage.getItem('configDataObject') !== null && debbugerSkipOption == true){
+        skipMenus(JSON.parse( localStorage.getItem('configDataObject')));
+    }
+    if( debbugerSkipOption == false ) localStorage.removeItem('configDataObject');
 });
 
 function generateMenu(){
@@ -45,7 +55,7 @@ function setHead(value){
     console.log(initialHead);
     if( typeof modelos_head[initialHead] !== 'undefined'  ) {
         document.getElementById("selectorHeadBox").src = 'images/avatarHeads/'+ modelos_head[initialHead] +'.png';
-        avataConfig.head = modelos_head[initialHead];
+        avatarConfig.head = modelos_head[initialHead];
     }
 }
 
@@ -55,7 +65,7 @@ function setBody(value){
     if(initialBody > modelos_body.length -1) initialBody = 0;
     if( typeof modelos_body[initialBody] !== 'undefined'  ) {
         document.getElementById("selectorBodyBox").src = 'images/avatarBodies/'+ modelos_body[initialBody] +'.png';
-        avataConfig.body = modelos_body[initialBody];
+        avatarConfig.body = modelos_body[initialBody];
     }
 }
 
@@ -79,17 +89,24 @@ function initRender() {
 
     camera = new THREE.PerspectiveCamera(60, (width / height), 0.01, 10000000);
     camera.position.set(1, 2, 0);
-    camera.lookAt(avatar.position);
 
     scene.add(camera);
 
-    // controls = new THREE.OrbitControls(camera, renderer.domElement);
-    // controls.enableDamping = false;
-    // controls.dampingFactor = 0.70;
-    // controls.enableZoom = false;
-    // controls.enableRotate = true;
-    // controls.enablePan = true;
-    // controls.target.set(0,0,0);
+    switch(typeOfControls){
+        case "camera":
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.70;
+            controls.enableZoom = true;
+            controls.enableRotate = true;
+            controls.enablePan = true;
+            controls.target.set(0,0,0);
+        break;
+        case "avatar":
+            avatarControls = new keyControls(avatar);
+            camera.lookAt(avatar.position);
+        break;    
+    };
 
     ambientLight = new THREE.AmbientLight(0xffffff, 1);
     ambientLight.position.set(0, 0.6, 0);
@@ -101,8 +118,12 @@ function initRender() {
 }
 
 function loadAvatar(parts) {
+
+    //remove previous avatar elements created
     avatar.remove(avatar.children[1]);
     avatar.remove(avatar.children[0]);
+
+    //Promise to control de % of objects loading
     let onProgress = function (xhr) {
         if (xhr.lengthComputable) {
             let percentComplete = xhr.loaded / xhr.total * 100;
@@ -114,6 +135,7 @@ function loadAvatar(parts) {
     let onError = function (xhr) {
     };
 
+    //load selected head and add to avatar group 
     let headLoader = new THREE.MTLLoader();
     headLoader.setPath('models/avatars/heads/');
     headLoader.setMaterialOptions ( { side: THREE.DoubleSide } );
@@ -127,6 +149,7 @@ function loadAvatar(parts) {
         }, onProgress, onError);
     });
 
+    //load selected body & add to avatar group
     let mtlLoader = new THREE.MTLLoader();
     mtlLoader.setPath('models/avatars/bodies/');
     mtlLoader.setMaterialOptions ( { side: THREE.DoubleSide } );
@@ -139,6 +162,12 @@ function loadAvatar(parts) {
             avatar.add(elements);
         }, onProgress, onError);
     });
+    var collisionCubeGeometry = new THREE.BoxGeometry(0.07, 0.06, 0.06);
+    var collisionCubeMaterial = new THREE.MeshLambertMaterial({color: 0xff2255});
+    var collisionCube = new THREE.Mesh(collisionCubeGeometry, collisionCubeMaterial);
+    collisionCube.name = 'collisionCube';
+    collisionCube.position.y = 0.06;
+    avatar.add(collisionCube);
     scene.add(avatar);
 }
 
@@ -174,14 +203,40 @@ function loadOffice(officeName) {
                     });
                 }
                 else if(interactiveObject.material.name.substring(0,11) == 'transparent') interactiveObject.material.transparent = true;
+                cubes.push(interactiveObject);
             });
             elements.name = officeName;
             planta.add(elements);
             $('#container').addClass('displayOn');
-            loadAvatar(avataConfig);
+            loadAvatar(avatarConfig);
         }, onProgress, onError);
     });
     scene.add(planta);
+    if(debbugerSkipOption == true) {
+        Object.assign(saveData, avatarConfig, { office: officeName });
+        localStorage.setItem('configDataObject', JSON.stringify(saveData));
+    }
+}
+
+function skipMenus(savedDatas){
+    Object.assign(avatarConfig, {head: savedDatas["head"], body: savedDatas["body"]});
+    tl.seek( '-=0', false );
+    loadOffice(savedDatas.office); 
+}
+
+function checkCollision() {
+    var cube = scene.getObjectByName('collisionCube');
+    var originPoint = cube.position.clone();
+    for (var vertexIndex = 0; vertexIndex < cube.geometry.vertices.length; vertexIndex++) {
+        var localVertex = cube.geometry.vertices[vertexIndex].clone();
+        var globalVertex = localVertex.applyMatrix4(cube.matrix);
+        var directionVector = globalVertex.sub(cube.position);
+        var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
+        var collisionResults = ray.intersectObjects(cubes);
+        if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
+            console.log(collisionResults[0].object.name);
+        }
+    }
 }
 
 function onWindowResize() {
@@ -191,20 +246,26 @@ function onWindowResize() {
 }
 
 function animate() {
-  requestAnimationFrame(animate);
-  camera.updateMatrixWorld();
+    setTimeout(function() {
+        requestAnimationFrame(animate);
+    }, 1000 / 30);
+    camera.updateMatrixWorld();
 
-  camera.lookAt(avatar.position);
-
-  if (controls) {
-    controls.update(clock.getDelta());
-  }
-  render();
-  TWEEN.update();
+    if (controls) {
+        controls.update(clock.getDelta());
+    }
+    if ( avatarControls != undefined ) {
+            camera.lookAt(avatar.position);
+            avatar.position.z += avatarControls.direction.z;
+            avatar.position.x -= avatarControls.direction.x;
+    }
+    render();
+    TWEEN.update();
 }
 
 function render() {
     renderer.render(scene, camera);
+    if(scene.getObjectByName('cube'))checkCollision();
 }
 
 function movement(value, object, delay, duration, easingType) {

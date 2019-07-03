@@ -1,17 +1,27 @@
 keyControls = function(avatarObject) {
 
     this.mouseClicked = false;
-    let xSpeed = ySpeed = 0.02;
+    this.moveSpeed = 0.015;
+    
+    this.moveForward = false;
+    this.moveBackward = false;
+    this.moveLeft = false;
+    this.moveRight = false;
 
+    this.raycaster = new THREE.Raycaster();
+    this.mouse = new THREE.Vector2();
+
+    this.direction = { "x":0, "y":0, "z":0 };
+    
     document.getElementById("container").onmousedown  = function(){this.mouseClicked = true;}
     document.getElementById("container").onmouseup  = function(){this.mouseClicked = false;}
-    document.getElementById("container").onmousemove = function(event){
+    document.getElementById("container").onmousemove = function(event) {
         if(this.mouseClicked) {
-            mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
-            mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
-            raycaster.setFromCamera( mouse, camera );
+            this.mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+            this.mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+            this.raycaster.setFromCamera( mouse, camera );
             if( planta.children.length > 0 ) {
-                let intersects = raycaster.intersectObject( planta.children[0].children[0]);
+                let intersects = this.raycaster.intersectObject( planta.children[0].children[0]);
                 if ( intersects.length > 0 ) {
                     movement({ x: intersects[0].point.x, y: 0, z: intersects[0].point.z }, avatar.position, 0, 500, TWEEN.Easing.Linear.None);
                     avatarObject.lookAt( intersects[0].point.x, 0, intersects[0].point.z );
@@ -20,40 +30,41 @@ keyControls = function(avatarObject) {
         }
     }
     
-    document.onkeydown = function(event) {
+    document.onkeydown = (event) => {
         switch( true ){
             //move up
             case event.key == "w" || event.key == "ArrowUp":
-                avatarObject.position.x -= ySpeed;
-                //camera.position.x -= ySpeed;
-                if( ySpeed > 0) avatarObject.rotation.y = -Math.PI / 2;
+                this.moveForward = true;
+                if( this.moveSpeed > 0 ) avatarObject.rotation.y = -Math.PI / 2;
                 else avatarObject.rotation.y = Math.PI / 2;
             break; 
             //move down
             case event.key == "s" || event.key == "ArrowDown":
-                avatarObject.position.x += ySpeed;
-                //camera.position.x += ySpeed;
-                if( ySpeed > 0) avatarObject.rotation.y = Math.PI / 2;
+                this.moveBackward = true;
+                if( this.moveSpeed > 0 ) avatarObject.rotation.y = Math.PI / 2;
                 else avatarObject.rotation.y = -Math.PI / 2;
             break; 
             //move left
             case event.key == "a" || event.key == "ArrowLeft":
-                avatarObject.position.z += xSpeed;
-                //camera.position.z += xSpeed;
-                if(xSpeed > 0) avatarObject.rotation.y = 0;
+                this.moveLeft = true;
+                if( this.moveSpeed > 0 ) avatarObject.rotation.y = 0;
                 else avatarObject.rotation.y = Math.PI;
             break; 
             //move right
             case event.key == "d" || event.key == "ArrowRight":
-                avatarObject.position.z -= xSpeed;
-                //camera.position.z -= xSpeed;
-                if(xSpeed > 0) avatarObject.rotation.y = Math.PI;
+                this.moveRight = true;
+                if( this.moveSpeed > 0 ) avatarObject.rotation.y = Math.PI;
                 else avatarObject.rotation.y = 0;
             break; 
         }
+        this.direction.x = ( Number( this.moveForward ) - Number( this.moveBackward )) * this.moveSpeed;
+        this.direction.z = ( Number( this.moveLeft ) - Number( this.moveRight )) * this.moveSpeed;
     };
-    document.onkeyup = function(){
-        if (avatarObject.position.x > 1) { xSpeed = -0.02; ySpeed = -0.02; }
-        else { xSpeed = 0.02; ySpeed = 0.02; }
+    document.onkeyup = () => {
+        this.moveForward = this.moveBackward = this.moveLeft = this.moveRight = false;    
+        this.direction.x = 0;
+        this.direction.z = 0;
+        if (avatarObject.position.x > 1) { this.moveSpeed = -Math.abs(this.moveSpeed); }
+        else { this.moveSpeed = Math.abs(this.moveSpeed); }
     };
 };
