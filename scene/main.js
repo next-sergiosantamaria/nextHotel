@@ -20,7 +20,7 @@ planta.name = 'planta';
 let avatar = new THREE.Object3D();
 avatar.name = 'avatar';
 
-let cubes = [];
+let interactiveObjects = [];
 
 const plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
 const modelos_head = ['head_1', 'head_2','head_3', 'head_4', 'head_5'];
@@ -162,10 +162,13 @@ function loadAvatar(parts) {
             avatar.add(elements);
         }, onProgress, onError);
     });
+
+    //adding cube inside avatar model to check collisions
     var collisionCubeGeometry = new THREE.BoxGeometry(0.07, 0.06, 0.06);
     var collisionCubeMaterial = new THREE.MeshLambertMaterial({color: 0xff2255});
     var collisionCube = new THREE.Mesh(collisionCubeGeometry, collisionCubeMaterial);
     collisionCube.name = 'collisionCube';
+    collisionCube.visible = false;
     collisionCube.position.y = 0.06;
     avatar.add(collisionCube);
     scene.add(avatar);
@@ -195,15 +198,15 @@ function loadOffice(officeName) {
         objLoader.setMaterials(materials);
         objLoader.setPath('models/');
         objLoader.load(officeName+'.obj', function (elements) {
-            elements.children.map(function(interactiveObject) {
-                interactiveObject.name = interactiveObject.name.replace(/_[a-z]*.[0-9]*/gi, "");
-                if(Array.isArray(interactiveObject.material)){
-                    interactiveObject.material.map(function(mat){
+            elements.children.map(function(plantObject) {
+                plantObject.name = plantObject.name.replace(/_[a-z]*.[0-9]*/gi, "");
+                if(Array.isArray(plantObject.material)){
+                    plantObject.material.map(function(mat){
                         if(mat.name.substring(0,11) == 'transparent') mat.transparent = true;
                     });
                 }
-                else if(interactiveObject.material.name.substring(0,11) == 'transparent') interactiveObject.material.transparent = true;
-                cubes.push(interactiveObject);
+                else if(plantObject.material.name.substring(0,11) == 'transparent') plantObject.material.transparent = true;
+                interactiveObjects.push(plantObject);
             });
             elements.name = officeName;
             planta.add(elements);
@@ -225,14 +228,15 @@ function skipMenus(savedDatas){
 }
 
 function checkCollision() {
+    var wpVector = new THREE.Vector3();
     var cube = scene.getObjectByName('collisionCube');
-    var originPoint = cube.position.clone();
+    var originPoint = cube.getWorldPosition(wpVector).clone();
     for (var vertexIndex = 0; vertexIndex < cube.geometry.vertices.length; vertexIndex++) {
         var localVertex = cube.geometry.vertices[vertexIndex].clone();
         var globalVertex = localVertex.applyMatrix4(cube.matrix);
         var directionVector = globalVertex.sub(cube.position);
         var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
-        var collisionResults = ray.intersectObjects(cubes);
+        var collisionResults = ray.intersectObjects(interactiveObjects);
         if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
             console.log(collisionResults[0].object.name);
         }
@@ -265,7 +269,7 @@ function animate() {
 
 function render() {
     renderer.render(scene, camera);
-    if(scene.getObjectByName('cube'))checkCollision();
+    if(scene.getObjectByName('collisionCube')) checkCollision();
 }
 
 function movement(value, object, delay, duration, easingType) {

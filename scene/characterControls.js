@@ -1,7 +1,7 @@
 keyControls = function(avatarObject) {
 
     this.mouseClicked = false;
-    this.moveSpeed = 0.015;
+    this.moveSpeed = 0.02;
     
     this.moveForward = false;
     this.moveBackward = false;
@@ -13,13 +13,13 @@ keyControls = function(avatarObject) {
 
     this.direction = { "x":0, "y":0, "z":0 };
     
-    document.getElementById("container").onmousedown  = function(){this.mouseClicked = true;}
-    document.getElementById("container").onmouseup  = function(){this.mouseClicked = false;}
-    document.getElementById("container").onmousemove = function(event) {
+    document.getElementById("container").onmousedown  = () => {this.mouseClicked = true;}
+    document.getElementById("container").onmouseup  = () => {this.mouseClicked = false;}
+    document.getElementById("container").onmousemove = (event) => {
         if(this.mouseClicked) {
             this.mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
             this.mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
-            this.raycaster.setFromCamera( mouse, camera );
+            this.raycaster.setFromCamera( this.mouse, camera );
             if( planta.children.length > 0 ) {
                 let intersects = this.raycaster.intersectObject( planta.children[0].children[0]);
                 if ( intersects.length > 0 ) {
