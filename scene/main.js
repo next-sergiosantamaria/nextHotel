@@ -6,7 +6,7 @@ let debbugerSkipOption = true;
 //select type of controls = "camera" for free camera control or "avatar" for avatar keys control
 const typeOfControls = "avatar"; // options: ["avatar", "camera"]
 
-let camera, scene, renderer, controls, avatarControls,
+let camera, scene, renderer, controls, avatarControls, collisionCube,
     width = window.innerWidth,
     height = window.innerHeight;
 
@@ -31,6 +31,8 @@ let initialBody = initialHead = 0;
 let avatarConfig = { head: 'head_1', body: 'body_1' };
 
 let saveData = {};
+
+let turnOnCollision = false;
 
 $(document).ready(function () {
     generateMenu();
@@ -164,13 +166,14 @@ function loadAvatar(parts) {
     });
 
     //adding cube inside avatar model to check collisions
-    var collisionCubeGeometry = new THREE.BoxGeometry(0.07, 0.06, 0.06);
-    var collisionCubeMaterial = new THREE.MeshLambertMaterial({color: 0xff2255});
-    var collisionCube = new THREE.Mesh(collisionCubeGeometry, collisionCubeMaterial);
+    let collisionCubeGeometry = new THREE.BoxGeometry(0.07, 0.06, 0.06);
+    let collisionCubeMaterial = new THREE.MeshLambertMaterial({color: 0xff2255});
+    collisionCube = new THREE.Mesh(collisionCubeGeometry, collisionCubeMaterial);
     collisionCube.name = 'collisionCube';
     collisionCube.visible = false;
     collisionCube.position.y = 0.06;
     avatar.add(collisionCube);
+    turnOnCollision = true;
     scene.add(avatar);
 }
 
@@ -227,9 +230,8 @@ function skipMenus(savedDatas){
     loadOffice(savedDatas.office); 
 }
 
-function checkCollision() {
+function checkCollision(cube) {
     var wpVector = new THREE.Vector3();
-    var cube = scene.getObjectByName('collisionCube');
     var originPoint = cube.getWorldPosition(wpVector).clone();
     for (var vertexIndex = 0; vertexIndex < cube.geometry.vertices.length; vertexIndex++) {
         var localVertex = cube.geometry.vertices[vertexIndex].clone();
@@ -269,7 +271,7 @@ function animate() {
 
 function render() {
     renderer.render(scene, camera);
-    if(scene.getObjectByName('collisionCube')) checkCollision();
+    if(turnOnCollision) checkCollision(collisionCube);
 }
 
 function movement(value, object, delay, duration, easingType) {
