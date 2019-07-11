@@ -6,7 +6,7 @@ let debbugerSkipOption = true;
 //select type of controls = "camera" for free camera control or "avatar" for avatar keys control
 const typeOfControls = "avatar"; // options: ["avatar", "camera"]
 
-let camera, scene, renderer, controls, avatarControls, collisionCube,
+let camera, scene, renderer, controls, avatarControls, collisionCube, previousCollision,
     width = window.innerWidth,
     height = window.innerHeight;
 
@@ -129,6 +129,7 @@ function loadAvatar(parts) {
     let onProgress = function (xhr) {
         if (xhr.lengthComputable) {
             let percentComplete = xhr.loaded / xhr.total * 100;
+            console.log(percentComplete);
             if (percentComplete == 100) {
                 console.log('Avatar model loaded!!');
             }
@@ -178,12 +179,14 @@ function loadAvatar(parts) {
 }
 
 function loadOffice(officeName) {
+    interactiveObjects = [];
     tl.tweenTo("openApp");
     $('#container').removeClass('displayOn');
     planta.remove(planta.children[0]);
     let onProgress = function (xhr) {
         if (xhr.lengthComputable) {
             let percentComplete = xhr.loaded / xhr.total * 100;
+            console.log(percentComplete);
             if (percentComplete == 100) {
                 console.log(officeName+' model loaded!!');
             }
@@ -240,7 +243,13 @@ function checkCollision(cube) {
         var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
         var collisionResults = ray.intersectObjects(interactiveObjects);
         if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
-            console.log(collisionResults[0].object.name);
+            if( previousCollision == collisionResults[0].object.name ){
+                console.log("do nothing");
+            }
+            else {
+                previousCollision = collisionResults[0].object.name;
+                console.log(collisionResults[0].object.name);
+            }
         }
     }
 }
