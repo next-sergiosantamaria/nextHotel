@@ -1,4 +1,4 @@
-# Blender MTL File: 'manoterasJoin.blend'
+# Blender MTL File: 'manoteras.blend'
 # Material Count: 20
 
 newmtl aqua1
@@ -172,9 +172,9 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd white_BBVANextTechnologies.png
+map_Kd Next.png
 
-newmtl transparentTexture_Next.png
+newmtl transparentTexture_white_BBVANextTechnologies.png
 Ns 96.078431
 Ka 1.000000 1.000000 1.000000
 Kd 1.000000 1.000000 1.000000
@@ -183,7 +183,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd Next.png
+map_Kd white_BBVANextTechnologies.png
 
 newmtl yellow1
 Ns 96.078431

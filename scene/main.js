@@ -6,7 +6,7 @@ let debbugerSkipOption = true;
 //select type of controls = "camera" for free camera control or "avatar" for avatar keys control
 const typeOfControls = "avatar"; // options: ["avatar", "camera"]
 
-let camera, scene, renderer, controls, avatarControls,
+let camera, scene, renderer, controls, avatarControls, collisionCube, previousCollision,
     width = window.innerWidth,
     height = window.innerHeight;
 
@@ -20,7 +20,7 @@ planta.name = 'planta';
 let avatar = new THREE.Object3D();
 avatar.name = 'avatar';
 
-let cubes = [];
+let interactiveObjects = [];
 
 const plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
 const modelos_head = ['head_1', 'head_2','head_3', 'head_4', 'head_5'];
@@ -31,6 +31,8 @@ let initialBody = initialHead = 0;
 let avatarConfig = { head: 'head_1', body: 'body_1' };
 
 let saveData = {};
+
+let turnOnCollision = false;
 
 $(document).ready(function () {
     generateMenu();
@@ -127,6 +129,7 @@ function loadAvatar(parts) {
     let onProgress = function (xhr) {
         if (xhr.lengthComputable) {
             let percentComplete = xhr.loaded / xhr.total * 100;
+            console.log(percentComplete);
             if (percentComplete == 100) {
                 console.log('Avatar model loaded!!');
             }
@@ -162,22 +165,28 @@ function loadAvatar(parts) {
             avatar.add(elements);
         }, onProgress, onError);
     });
-    var collisionCubeGeometry = new THREE.BoxGeometry(0.07, 0.06, 0.06);
-    var collisionCubeMaterial = new THREE.MeshLambertMaterial({color: 0xff2255});
-    var collisionCube = new THREE.Mesh(collisionCubeGeometry, collisionCubeMaterial);
+
+    //adding cube inside avatar model to check collisions
+    let collisionCubeGeometry = new THREE.BoxGeometry(0.07, 0.06, 0.06);
+    let collisionCubeMaterial = new THREE.MeshLambertMaterial({color: 0xff2255});
+    collisionCube = new THREE.Mesh(collisionCubeGeometry, collisionCubeMaterial);
     collisionCube.name = 'collisionCube';
+    collisionCube.visible = true;
     collisionCube.position.y = 0.06;
     avatar.add(collisionCube);
+    turnOnCollision = true;
     scene.add(avatar);
 }
 
 function loadOffice(officeName) {
+    interactiveObjects = [];
     tl.tweenTo("openApp");
     $('#container').removeClass('displayOn');
     planta.remove(planta.children[0]);
     let onProgress = function (xhr) {
         if (xhr.lengthComputable) {
             let percentComplete = xhr.loaded / xhr.total * 100;
+            console.log(percentComplete);
             if (percentComplete == 100) {
                 console.log(officeName+' model loaded!!');
             }
@@ -195,15 +204,19 @@ function loadOffice(officeName) {
         objLoader.setMaterials(materials);
         objLoader.setPath('models/');
         objLoader.load(officeName+'.obj', function (elements) {
-            elements.children.map(function(interactiveObject) {
-                interactiveObject.name = interactiveObject.name.replace(/_[a-z]*.[0-9]*/gi, "");
-                if(Array.isArray(interactiveObject.material)){
-                    interactiveObject.material.map(function(mat){
+            elements.children.map(function(plantObject) {
+                plantObject.name = plantObject.name.replace(/_[a-z]*.[0-9]*/gi, "");
+                if( plantObject.name.match("interact")){
+                    interactiveObjects.push(plantObject);
+                }
+                plantObject.name = plantObject.name.replace('interact','');
+                if(Array.isArray(plantObject.material)){
+                    plantObject.material.map(function(mat){
                         if(mat.name.substring(0,11) == 'transparent') mat.transparent = true;
                     });
                 }
-                else if(interactiveObject.material.name.substring(0,11) == 'transparent') interactiveObject.material.transparent = true;
-                cubes.push(interactiveObject);
+                else if(plantObject.material.name.substring(0,11) == 'transparent') plantObject.material.transparent = true;
+                
             });
             elements.name = officeName;
             planta.add(elements);
@@ -224,17 +237,23 @@ function skipMenus(savedDatas){
     loadOffice(savedDatas.office); 
 }
 
-function checkCollision() {
-    var cube = scene.getObjectByName('collisionCube');
-    var originPoint = cube.position.clone();
+function checkCollision(cube) {
+    var wpVector = new THREE.Vector3();
+    var originPoint = cube.getWorldPosition(wpVector).clone();
     for (var vertexIndex = 0; vertexIndex < cube.geometry.vertices.length; vertexIndex++) {
         var localVertex = cube.geometry.vertices[vertexIndex].clone();
         var globalVertex = localVertex.applyMatrix4(cube.matrix);
         var directionVector = globalVertex.sub(cube.position);
         var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
-        var collisionResults = ray.intersectObjects(cubes);
+        var collisionResults = ray.intersectObjects(interactiveObjects);
         if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
-            console.log(collisionResults[0].object.name);
+            if( previousCollision == collisionResults[0].object.name ){
+                console.log("do nothing");
+            }
+            else {
+                previousCollision = collisionResults[0].object.name;
+                console.log(collisionResults[0].object.name);
+            }
         }
     }
 }
@@ -246,9 +265,11 @@ function onWindowResize() {
 }
 
 function animate() {
+
     setTimeout(function() {
         requestAnimationFrame(animate);
     }, 1000 / 30);
+
     camera.updateMatrixWorld();
 
     if (controls) {
@@ -265,7 +286,7 @@ function animate() {
 
 function render() {
     renderer.render(scene, camera);
-    if(scene.getObjectByName('cube'))checkCollision();
+    if(turnOnCollision) checkCollision(collisionCube);
 }
 
 function movement(value, object, delay, duration, easingType) {
