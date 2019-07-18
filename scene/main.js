@@ -171,7 +171,7 @@ function loadAvatar(parts) {
     let collisionCubeMaterial = new THREE.MeshLambertMaterial({color: 0xff2255});
     collisionCube = new THREE.Mesh(collisionCubeGeometry, collisionCubeMaterial);
     collisionCube.name = 'collisionCube';
-    collisionCube.visible = false;
+    collisionCube.visible = true;
     collisionCube.position.y = 0.06;
     avatar.add(collisionCube);
     turnOnCollision = true;
@@ -206,13 +206,16 @@ function loadOffice(officeName) {
         objLoader.load(officeName+'.obj', function (elements) {
             elements.children.map(function(plantObject) {
                 plantObject.name = plantObject.name.replace(/_[a-z]*.[0-9]*/gi, "");
+                if( plantObject.name.match("interact")){
+                    interactiveObjects.push(plantObject);
+                }
                 if(Array.isArray(plantObject.material)){
                     plantObject.material.map(function(mat){
                         if(mat.name.substring(0,11) == 'transparent') mat.transparent = true;
                     });
                 }
                 else if(plantObject.material.name.substring(0,11) == 'transparent') plantObject.material.transparent = true;
-                interactiveObjects.push(plantObject);
+                
             });
             elements.name = officeName;
             planta.add(elements);
@@ -261,9 +264,11 @@ function onWindowResize() {
 }
 
 function animate() {
+
     setTimeout(function() {
         requestAnimationFrame(animate);
     }, 1000 / 30);
+
     camera.updateMatrixWorld();
 
     if (controls) {
