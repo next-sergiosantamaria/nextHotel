@@ -209,6 +209,7 @@ function loadOffice(officeName) {
                 if( plantObject.name.match("interact")){
                     interactiveObjects.push(plantObject);
                 }
+                plantObject.name = plantObject.name.replace('interact','');
                 if(Array.isArray(plantObject.material)){
                     plantObject.material.map(function(mat){
                         if(mat.name.substring(0,11) == 'transparent') mat.transparent = true;
