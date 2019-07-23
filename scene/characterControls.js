@@ -34,27 +34,35 @@ keyControls = function(avatarObject) {
         switch( true ){
             //move up
             case event.key == "w" || event.key == "ArrowUp":
-                this.moveForward = true;
-                if( this.moveSpeed > 0 ) avatarObject.rotation.y = -Math.PI / 2;
-                else avatarObject.rotation.y = Math.PI / 2;
+                if (collisionDirection.x >= 0) {
+                    this.moveForward = true;
+                    if( this.moveSpeed > 0 ) avatarObject.rotation.y = -Math.PI / 2;
+                    else avatarObject.rotation.y = Math.PI / 2;
+                }
             break; 
             //move down
             case event.key == "s" || event.key == "ArrowDown":
-                this.moveBackward = true;
-                if( this.moveSpeed > 0 ) avatarObject.rotation.y = Math.PI / 2;
-                else avatarObject.rotation.y = -Math.PI / 2;
+                if (collisionDirection.x <= 0) {
+                    this.moveBackward = true;
+                    if( this.moveSpeed > 0 ) avatarObject.rotation.y = Math.PI / 2;
+                    else avatarObject.rotation.y = -Math.PI / 2;
+                }
             break; 
             //move left
             case event.key == "a" || event.key == "ArrowLeft":
-                this.moveLeft = true;
-                if( this.moveSpeed > 0 ) avatarObject.rotation.y = 0;
-                else avatarObject.rotation.y = Math.PI;
+                if (collisionDirection.z <= 0) {
+                    this.moveLeft = true;
+                    if( this.moveSpeed > 0 ) avatarObject.rotation.y = 0;
+                    else avatarObject.rotation.y = Math.PI;
+                }
             break; 
             //move right
             case event.key == "d" || event.key == "ArrowRight":
-                this.moveRight = true;
-                if( this.moveSpeed > 0 ) avatarObject.rotation.y = Math.PI;
-                else avatarObject.rotation.y = 0;
+                if (collisionDirection.z >= 0) { 
+                    this.moveRight = true;
+                    if( this.moveSpeed > 0 ) avatarObject.rotation.y = Math.PI;
+                    else avatarObject.rotation.y = 0;
+                }
             break; 
         }
         this.direction.x = ( Number( this.moveForward ) - Number( this.moveBackward )) * this.moveSpeed;
