@@ -4,7 +4,7 @@ window.addEventListener('resize', onWindowResize, false);
 //Select true for skip config menu and seek to scene directly
 let debbugerSkipOption = true;
 //select type of controls = "camera" for free camera control or "avatar" for avatar keys control
-const typeOfControls = "avatar"; // options: ["avatar", "camera"]
+const typeOfControls = "avatar";// options: ["avatar", "camera"]
 
 let camera, scene, renderer, controls, avatarControls, collisionCube, previousCollision,
     width = window.innerWidth,
@@ -171,7 +171,7 @@ function loadAvatar(parts) {
     let collisionCubeMaterial = new THREE.MeshLambertMaterial({color: 0xff2255});
     collisionCube = new THREE.Mesh(collisionCubeGeometry, collisionCubeMaterial);
     collisionCube.name = 'collisionCube';
-    collisionCube.visible = true;
+    collisionCube.visible = false;
     collisionCube.position.y = 0.06;
     avatar.add(collisionCube);
     turnOnCollision = true;
@@ -248,7 +248,7 @@ function checkCollision(cube) {
         var collisionResults = ray.intersectObjects(interactiveObjects);
         if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
             if( previousCollision == collisionResults[0].object.name ){
-                console.log("do nothing");
+                doSomethig(collisionResults[0].object.name);
             }
             else {
                 previousCollision = collisionResults[0].object.name;
@@ -276,7 +276,7 @@ function animate() {
         controls.update(clock.getDelta());
     }
     if ( avatarControls != undefined ) {
-            camera.lookAt(avatar.position);
+            //camera.lookAt(avatar.position);
             avatar.position.z += avatarControls.direction.z;
             avatar.position.x -= avatarControls.direction.x;
     }
