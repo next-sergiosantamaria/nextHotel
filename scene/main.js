@@ -249,7 +249,8 @@ function checkCollision(cube) {
         var collisionResults = ray.intersectObjects(interactiveObjects);
         if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
             if( previousCollision == collisionResults[0].object.name ){
-                collisionDirection = collisionResults[0].point.clone().normalize().round();
+                collisionDirection = new THREE.Vector3();
+                collisionDirection.subVectors(cube.position, collisionResults[0].point).normalize().round();
                 console.log(collisionDirection);
             }
             else {
