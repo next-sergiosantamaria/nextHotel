@@ -41,28 +41,28 @@ keyControls = function(avatarObject) {
                 // rotate
                 this.moveSpeed > 0 ? avatarObject.rotation.y = -Math.PI / 2 : avatarObject.rotation.y = Math.PI / 2;
                 // move
-                this.direction.x = () => collisionDirection.x >= 0 ? UP * this.moveSpeed : 0;
+                this.direction.x = () => collisionDirection.x <= 0 ? UP * this.moveSpeed : 0;
             break; 
             //move down
             case event.key == "s" || event.key == "ArrowDown":
                 // rotate
                 this.moveSpeed > 0 ? avatarObject.rotation.y = Math.PI / 2 : avatarObject.rotation.y = -Math.PI / 2;
                 // move
-                this.direction.x = () => collisionDirection.x <= 0 ? DOWN * this.moveSpeed : 0;
+                this.direction.x = () => collisionDirection.x >= 0 ? DOWN * this.moveSpeed : 0;
             break; 
             //move left
             case event.key == "a" || event.key == "ArrowLeft":
                 // rotate
                 this.moveSpeed > 0 ? avatarObject.rotation.y = 0 : avatarObject.rotation.y = Math.PI;
                 // move
-                this.direction.z = () => collisionDirection.z <= 0 ? LEFT * this.moveSpeed : 0;
+                this.direction.z = () => collisionDirection.z >= 0 ? LEFT * this.moveSpeed : 0;
             break; 
             //move right
             case event.key == "d" || event.key == "ArrowRight":
                 // rotate
                 this.moveSpeed > 0 ? avatarObject.rotation.y = Math.PI : avatarObject.rotation.y = 0;
                 // move
-                this.direction.z = () => collisionDirection.z >= 0 ? RIGHT * this.moveSpeed : 0;
+                this.direction.z = () => collisionDirection.z <= 0 ? RIGHT * this.moveSpeed : 0;
             break; 
         }
     };
