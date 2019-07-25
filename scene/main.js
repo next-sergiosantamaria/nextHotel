@@ -34,6 +34,8 @@ let saveData = {};
 
 let turnOnCollision = false;
 
+collisionDirection = new THREE.Vector3( 0, 0, 0 );
+
 $(document).ready(function () {
     generateMenu();
     initRender();
@@ -209,7 +211,6 @@ function loadOffice(officeName) {
                 if( plantObject.name.match("interact")){
                     interactiveObjects.push(plantObject);
                 }
-                plantObject.name = plantObject.name.replace('interact','');
                 if(Array.isArray(plantObject.material)){
                     plantObject.material.map(function(mat){
                         if(mat.name.substring(0,11) == 'transparent') mat.transparent = true;
@@ -248,12 +249,15 @@ function checkCollision(cube) {
         var collisionResults = ray.intersectObjects(interactiveObjects);
         if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
             if( previousCollision == collisionResults[0].object.name ){
-                doSomethig(collisionResults[0].object.name);
+                collisionDirection = collisionResults[0].point.clone().normalize().round();
+                console.log(collisionDirection);
             }
             else {
                 previousCollision = collisionResults[0].object.name;
                 console.log(collisionResults[0].object.name);
             }
+        } else {
+            collisionDirection = new THREE.Vector3( 0, 0, 0); 
         }
     }
 }
@@ -276,9 +280,11 @@ function animate() {
         controls.update(clock.getDelta());
     }
     if ( avatarControls != undefined ) {
-            //camera.lookAt(avatar.position);
-            avatar.position.z += avatarControls.direction.z;
-            avatar.position.x -= avatarControls.direction.x;
+        // camera.lookAt(avatar.position);
+        avatar.position.z += avatarControls.direction.z();
+        avatar.position.x -= avatarControls.direction.x();
+        camera.position.z = avatar.position.z;
+        camera.position.x = avatar.position.x+0.5;
     }
     render();
     TWEEN.update();
