@@ -280,9 +280,9 @@ function animate() {
         controls.update(clock.getDelta());
     }
     if ( avatarControls != undefined ) {
-            camera.lookAt(avatar.position);
-            avatar.position.z += avatarControls.direction.z;
-            avatar.position.x -= avatarControls.direction.x;
+            // camera.lookAt(avatar.position);
+            avatar.position.z += avatarControls.direction.z();
+            avatar.position.x -= avatarControls.direction.x();
     }
     render();
     TWEEN.update();
