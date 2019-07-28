@@ -1,4 +1,4 @@
-# Blender MTL File: 'tablas2-P2Joint.blend'
+# Blender MTL File: 'tablas2-P2.blend'
 # Material Count: 23
 
 newmtl Azul
@@ -95,6 +95,16 @@ newmtl blue2
 Ns 94.117647
 Ka 1.000000 1.000000 1.000000
 Kd 0.001214 0.031896 0.124772
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl blue3
+Ns 94.117647
+Ka 1.000000 1.000000 1.000000
+Kd 0.006995 0.127438 0.376262
 Ks 0.000000 0.000000 0.000000
 Ke 0.000000 0.000000 0.000000
 Ni 1.000000
@@ -203,17 +213,6 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Kd cristal.png
-
-newmtl purple2_NONE
-Ns 94.117647
-Ka 1.000000 1.000000 1.000000
-Kd 0.274677 0.194618 0.783538
-Ks 0.000000 0.000000 0.000000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-map_Kd floorTexture.jpg
 
 newmtl purple2_floorTexture.jpg.002
 Ns 94.117647
