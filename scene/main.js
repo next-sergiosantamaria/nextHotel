@@ -42,6 +42,11 @@ $(document).ready(function () {
         skipMenus(JSON.parse( localStorage.getItem('configDataObject')));
     }
     if( debbugerSkipOption == false ) localStorage.removeItem('configDataObject');
+
+    var socket = io.connect('https://34.240.9.59:3031', { 'forceNew': true });
+    socket.emit('userDatas', function(data) {
+        console.log(data);
+    });
 });
 
 function generateMenu(){
