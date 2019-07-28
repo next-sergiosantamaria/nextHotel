@@ -4,6 +4,8 @@ const DOWN = -1;
 const LEFT = 1;
 const RIGHT = -1;
 
+let avatarDirection = 0;
+
 keyControls = function(avatarObject) {
 
     this.mouseClicked = false;
@@ -35,9 +37,11 @@ keyControls = function(avatarObject) {
     }
     
     document.onkeydown = (event) => {
+        event.preventDefault();
         switch( true ){
             //move up
             case event.key == "w" || event.key == "ArrowUp":
+                avatarDirection = upDirection;
                 // rotate
                 this.moveSpeed > 0 ? avatarObject.rotation.y = -Math.PI / 2 : avatarObject.rotation.y = Math.PI / 2;
                 // move
@@ -67,13 +71,13 @@ keyControls = function(avatarObject) {
         }
     };
     document.onkeyup = () => {
+        moveActivation();
+    };
+    function moveActivation(){
         // this.moveForward = this.moveBackward = this.moveLeft = this.moveRight = false;    
         this.direction.x = () => 0;
         this.direction.z = () => 0;
         if (avatarObject.position.x > 1) { this.moveSpeed = -Math.abs(this.moveSpeed); }
         else { this.moveSpeed = Math.abs(this.moveSpeed); }
-    };
-    function moveActivation(){
-        
     }
 };

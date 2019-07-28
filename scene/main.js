@@ -22,6 +22,8 @@ avatar.name = 'avatar';
 
 let interactiveObjects = [];
 
+let movingDirection = new THREE.Object3D();
+
 const plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
 const modelos_head = ['head_1', 'head_2','head_3', 'head_4', 'head_5'];
 const modelos_body = ['body_1','body_2','body_3','body_4', 'body_5', 'body_6'];
@@ -44,6 +46,12 @@ $(document).ready(function () {
         skipMenus(JSON.parse( localStorage.getItem('configDataObject')));
     }
     if( debbugerSkipOption == false ) localStorage.removeItem('configDataObject');
+
+    var socket = io.connect('https://34.240.9.59:3031');
+
+    socket.emit('UserDatas', function(data) {
+        console.log(data);
+    });
 });
 
 function generateMenu(){
@@ -248,9 +256,9 @@ function checkCollision(cube) {
         var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
         var collisionResults = ray.intersectObjects(interactiveObjects);
         if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
+            moveRight = false;
             if( previousCollision == collisionResults[0].object.name ){
-                collisionDirection = new THREE.Vector3();
-                collisionDirection.subVectors(cube.position, collisionResults[0].point).normalize().round();
+                movingDirection = avatarDirection;
                 console.log(collisionDirection);
             }
             else {
@@ -285,7 +293,7 @@ function animate() {
         avatar.position.z += avatarControls.direction.z();
         avatar.position.x -= avatarControls.direction.x();
         camera.position.z = avatar.position.z;
-        camera.position.x = avatar.position.x+0.5;
+        camera.position.x = avatar.position.x + 0.5;
     }
     render();
     TWEEN.update();
