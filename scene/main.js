@@ -42,11 +42,7 @@ $(document).ready(function () {
         skipMenus(JSON.parse( localStorage.getItem('configDataObject')));
     }
     if( debbugerSkipOption == false ) localStorage.removeItem('configDataObject');
-
-    var socket = io.connect('https://34.240.9.59:3031', { 'forceNew': true });
-    socket.emit('userDatas', function(data) {
-        console.log(data);
-    });
+    var socket = io.connect('http://34.240.9.59:3031', { 'forceNew': true });
 });
 
 function generateMenu(){
@@ -284,6 +280,8 @@ function animate() {
             camera.lookAt(avatar.position);
             avatar.position.z += avatarControls.direction.z;
             avatar.position.x -= avatarControls.direction.x;
+            camera.position.x = avatar.position.x + 0.5;
+            camera.position.z = avatar.position.z;
     }
     render();
     TWEEN.update();
