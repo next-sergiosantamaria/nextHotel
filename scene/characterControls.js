@@ -35,26 +35,22 @@ keyControls = function(avatarObject) {
             //move up
             case event.key == "w" || event.key == "ArrowUp":
                 this.moveForward = true;
-                if( this.moveSpeed > 0 ) avatarObject.rotation.y = -Math.PI / 2;
-                else avatarObject.rotation.y = Math.PI / 2;
+                avatarObject.rotation.y = -Math.PI / 2;
             break; 
             //move down
             case event.key == "s" || event.key == "ArrowDown":
                 this.moveBackward = true;
-                if( this.moveSpeed > 0 ) avatarObject.rotation.y = Math.PI / 2;
-                else avatarObject.rotation.y = -Math.PI / 2;
+                avatarObject.rotation.y = Math.PI / 2;
             break; 
             //move left
             case event.key == "a" || event.key == "ArrowLeft":
                 this.moveLeft = true;
-                if( this.moveSpeed > 0 ) avatarObject.rotation.y = 0;
-                else avatarObject.rotation.y = Math.PI;
+                avatarObject.rotation.y = 0;
             break; 
             //move right
             case event.key == "d" || event.key == "ArrowRight":
                 this.moveRight = true;
-                if( this.moveSpeed > 0 ) avatarObject.rotation.y = Math.PI;
-                else avatarObject.rotation.y = 0;
+                avatarObject.rotation.y = Math.PI;
             break; 
         }
         this.direction.x = ( Number( this.moveForward ) - Number( this.moveBackward )) * this.moveSpeed;
@@ -64,7 +60,5 @@ keyControls = function(avatarObject) {
         this.moveForward = this.moveBackward = this.moveLeft = this.moveRight = false;    
         this.direction.x = 0;
         this.direction.z = 0;
-        if (avatarObject.position.x > 1) { this.moveSpeed = -Math.abs(this.moveSpeed); }
-        else { this.moveSpeed = Math.abs(this.moveSpeed); }
     };
 };

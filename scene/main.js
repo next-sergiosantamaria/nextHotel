@@ -1,12 +1,11 @@
 window.addEventListener('resize', onWindowResize, false);
-
 //Debugg options
 //Select true for skip config menu and seek to scene directly
 let debbugerSkipOption = true;
 //select type of controls = "camera" for free camera control or "avatar" for avatar keys control
 const typeOfControls = "avatar";// options: ["avatar", "camera"]
 
-let camera, scene, renderer, controls, avatarControls, collisionCube, previousCollision,
+let camera, scene, renderer, controls, avatarControls, collisionCube, previousCollision, animLoader, headanimLoader, mixer, headmixer, bodyModel, headModel, avatarAnimations, avatarHeadAnimation,
     width = window.innerWidth,
     height = window.innerHeight;
 
@@ -23,8 +22,8 @@ avatar.name = 'avatar';
 let interactiveObjects = [];
 
 const plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
-const modelos_head = ['head_1', 'head_2','head_3', 'head_4', 'head_5'];
-const modelos_body = ['body_1','body_2','body_3','body_4', 'body_5', 'body_6'];
+const modelos_head = ['head_1anim', 'head_2','head_3', 'head_4', 'head_5'];
+const modelos_body = ['body_1anim','body_2','body_3','body_4', 'body_5', 'body_6'];
 
 let initialBody = initialHead = 0;
 
@@ -55,7 +54,6 @@ function setHead(value){
     initialHead += value;
     if(initialHead < 0) initialHead = modelos_head.length -1;
     if(initialHead > modelos_head.length -1) initialHead = 0;
-    console.log(initialHead);
     if( typeof modelos_head[initialHead] !== 'undefined'  ) {
         document.getElementById("selectorHeadBox").src = 'images/avatarHeads/'+ modelos_head[initialHead] +'.png';
         avatarConfig.head = modelos_head[initialHead];
@@ -123,8 +121,9 @@ function initRender() {
 function loadAvatar(parts) {
 
     //remove previous avatar elements created
-    avatar.remove(avatar.children[1]);
     avatar.remove(avatar.children[0]);
+    avatar.remove(avatar.children[1]);
+    avatar.remove(avatar.children[2]);
 
     //Promise to control de % of objects loading
     let onProgress = function (xhr) {
@@ -139,33 +138,22 @@ function loadAvatar(parts) {
     let onError = function (xhr) {
     };
 
-    //load selected head and add to avatar group 
-    let headLoader = new THREE.MTLLoader();
-    headLoader.setPath('models/avatars/heads/');
-    headLoader.setMaterialOptions ( { side: THREE.DoubleSide } );
-    headLoader.load( parts.head +'.mtl', function (materials) {
-        materials.preload();
-        let headObjLoader = new THREE.OBJLoader();
-        headObjLoader.setMaterials(materials);
-        headObjLoader.setPath('models/avatars/heads/');
-        headObjLoader.load( parts.head+'.obj', function (elements) {
-            avatar.add(elements);
-        }, onProgress, onError);
-    });
+    animLoader = new THREE.GLTFLoader();
+    animLoader.load( 'models/avatars/bodies/body_1anim.glb', function ( gltf ) {
+        bodyModel = gltf.scene;
+        avatarAnimations = gltf.animations;
+        avatar.add( bodyModel );
+        mixer = new THREE.AnimationMixer( bodyModel );
+    }, onProgress, onError);
 
-    //load selected body & add to avatar group
-    let mtlLoader = new THREE.MTLLoader();
-    mtlLoader.setPath('models/avatars/bodies/');
-    mtlLoader.setMaterialOptions ( { side: THREE.DoubleSide } );
-    mtlLoader.load( parts.body +'.mtl', function (materials) {
-        materials.preload();
-        let objLoader = new THREE.OBJLoader();
-        objLoader.setMaterials(materials);
-        objLoader.setPath('models/avatars/bodies/');
-        objLoader.load( parts.body +'.obj', function (elements) {
-            avatar.add(elements);
-        }, onProgress, onError);
-    });
+    headanimLoader = new THREE.GLTFLoader();
+    headanimLoader.load( 'models/avatars/heads/head_1anim.glb', function ( gltf ) {
+        headModel = gltf.scene;
+        console.log(gltf);
+        avatarHeadAnimation = gltf.animations;
+        avatar.add( headModel );
+        headmixer = new THREE.AnimationMixer( headModel );
+    }, onProgress, onError);
 
     //adding cube inside avatar model to check collisions
     let collisionCubeGeometry = new THREE.BoxGeometry(0.07, 0.06, 0.06);
@@ -267,6 +255,10 @@ function onWindowResize() {
 
 function animate() {
 
+    var dt = clock.getDelta();
+    if ( mixer ) mixer.update( dt );
+    if ( headmixer ) headmixer.update( dt );
+
     setTimeout(function() {
         requestAnimationFrame(animate);
     }, 1000 / 30);
@@ -277,6 +269,16 @@ function animate() {
         controls.update(clock.getDelta());
     }
     if ( avatarControls != undefined ) {
+            if(mixer){
+                if(avatarControls.direction.x != 0 || avatarControls.direction.z != 0) {
+                    mixer.clipAction( avatarAnimations[ 1 ] ).play();
+                    headmixer.clipAction( avatarHeadAnimation[ 0 ] ).play();
+                }
+                else {
+                    mixer.clipAction( avatarAnimations[ 1 ] ).stop();
+                    headmixer.clipAction( avatarHeadAnimation[ 0 ] ).stop();
+                }
+            }
             camera.lookAt(avatar.position);
             avatar.position.z += avatarControls.direction.z;
             avatar.position.x -= avatarControls.direction.x;
