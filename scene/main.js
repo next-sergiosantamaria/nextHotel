@@ -139,7 +139,7 @@ function loadAvatar(parts) {
     };
 
     animLoader = new THREE.GLTFLoader();
-    animLoader.load( 'models/avatars/bodies/body_1anim.glb', function ( gltf ) {
+    animLoader.load( 'models/avatars/bodies/body_6anim.glb', function ( gltf ) {
         bodyModel = gltf.scene;
         avatarAnimations = gltf.animations;
         avatar.add( bodyModel );
