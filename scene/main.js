@@ -150,7 +150,7 @@ function loadAvatar(parts) {
     }, onProgress, onError);
 
     headanimLoader = new THREE.GLTFLoader();
-    headanimLoader.load( 'models/avatars/heads/head_1anim.glb', function ( gltf ) {
+    headanimLoader.load( 'models/avatars/heads/' + avatarConfig.head + '.glb', function ( gltf ) {
         headModel = gltf.scene;
         avatarHeadAnimation = gltf.animations;
         headModel.name = 'head';
@@ -276,11 +276,11 @@ function animate() {
             if(mixer){
                 if(avatarControls.direction.x != 0 || avatarControls.direction.z != 0) {
                     mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name ==="walk") ] ).play();
-                    headmixer.clipAction( avatarHeadAnimation[ 0 ] ).play();
+                    headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name ==="walk") ] ).play();
                 }
                 else {
                     mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name ==="walk") ] ).stop();
-                    headmixer.clipAction( avatarHeadAnimation[ 0 ] ).stop();
+                    headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name ==="walk") ] ).stop();
                 }
             }
             camera.lookAt(avatar.position);
