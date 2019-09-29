@@ -23,7 +23,7 @@ let interactiveObjects = [];
 
 const plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
 const modelos_head = ['head_1anim', 'head_2','head_3', 'head_4', 'head_5'];
-const modelos_body = ['body_1anim','body_2','body_3','body_4', 'body_5', 'body_6'];
+const modelos_body = ['body_1','body_2','body_3','body_4', 'body_5', 'body_6'];
 
 let initialBody = initialHead = 0;
 
@@ -80,6 +80,7 @@ function initRender() {
     renderer.setSize(width, height);
     renderer.setClearColor(0xffffff, 0);
     renderer.setViewport(0, 0, width, height);
+    renderer.gammaOutput = true;
     renderer.getMaxAnisotropy();
 
     element = renderer.domElement;
@@ -121,9 +122,10 @@ function initRender() {
 function loadAvatar(parts) {
 
     //remove previous avatar elements created
-    avatar.remove(avatar.children[0]);
-    avatar.remove(avatar.children[1]);
-    avatar.remove(avatar.children[2]);
+    scene.remove(avatar);
+    for (var i = avatar.children.length - 1; i >= 0; i--) {
+        avatar.remove(avatar.children[i]);
+    }
 
     //Promise to control de % of objects loading
     let onProgress = function (xhr) {
@@ -139,9 +141,10 @@ function loadAvatar(parts) {
     };
 
     animLoader = new THREE.GLTFLoader();
-    animLoader.load( 'models/avatars/bodies/body_6anim.glb', function ( gltf ) {
+    animLoader.load( 'models/avatars/bodies/' + avatarConfig.body + '.glb', function ( gltf ) {
         bodyModel = gltf.scene;
         avatarAnimations = gltf.animations;
+        bodyModel.name = 'body';
         avatar.add( bodyModel );
         mixer = new THREE.AnimationMixer( bodyModel );
     }, onProgress, onError);
@@ -149,8 +152,8 @@ function loadAvatar(parts) {
     headanimLoader = new THREE.GLTFLoader();
     headanimLoader.load( 'models/avatars/heads/head_1anim.glb', function ( gltf ) {
         headModel = gltf.scene;
-        console.log(gltf);
         avatarHeadAnimation = gltf.animations;
+        headModel.name = 'head';
         avatar.add( headModel );
         headmixer = new THREE.AnimationMixer( headModel );
     }, onProgress, onError);
@@ -171,6 +174,7 @@ function loadOffice(officeName) {
     interactiveObjects = [];
     tl.tweenTo("openApp");
     $('#container').removeClass('displayOn');
+    scene.remove(planta);
     planta.remove(planta.children[0]);
     let onProgress = function (xhr) {
         if (xhr.lengthComputable) {
@@ -271,11 +275,11 @@ function animate() {
     if ( avatarControls != undefined ) {
             if(mixer){
                 if(avatarControls.direction.x != 0 || avatarControls.direction.z != 0) {
-                    mixer.clipAction( avatarAnimations[ 1 ] ).play();
+                    mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name ==="walk") ] ).play();
                     headmixer.clipAction( avatarHeadAnimation[ 0 ] ).play();
                 }
                 else {
-                    mixer.clipAction( avatarAnimations[ 1 ] ).stop();
+                    mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name ==="walk") ] ).stop();
                     headmixer.clipAction( avatarHeadAnimation[ 0 ] ).stop();
                 }
             }
