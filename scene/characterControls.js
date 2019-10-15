@@ -1,23 +1,18 @@
-const ZERO = () => 0;
-const UP = 1;
-const DOWN = -1;
-const LEFT = 1;
-const RIGHT = -1;
-
-let avatarDirection = 0;
-
 keyControls = function(avatarObject) {
 
     this.mouseClicked = false;
     this.moveSpeed = 0.02;
     
-    this.moveX = ZERO;
-    this.moveZ = ZERO;
+    this.moveForward = false;
+    this.moveBackward = false;
+    this.moveLeft = false;
+    this.moveRight = false;
 
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
 
-    this.direction = { x: ZERO, y: ZERO, z: ZERO };
+    this.direction = { "x":0, "y":0, "z":0 };
+    this.checkCollision = () => false;
     
     document.getElementById("container").onmousedown  = () => {this.mouseClicked = true;}
     document.getElementById("container").onmouseup  = () => {this.mouseClicked = false;}
@@ -35,49 +30,57 @@ keyControls = function(avatarObject) {
             }
         }
     }
+
+    this.blockIfCollision = () => {
+        if (this.checkCollision()) {
+            avatarObject.position.z -= this.direction.z * 2;
+            avatarObject.position.x += this.direction.x * 2;
+            this.moveForward = this.moveBackward = this.moveLeft = this.moveRight = false;    
+            this.direction.x = 0;
+            this.direction.z = 0;
+        }
+    }
+
+    this.blockPosition = {
+        w: () => { this.blockForward = true },
+        ArrowUp: () => { this.blockForward = true},
+        s: () => { this.blockBackward = true},
+        ArrowDown: () => { this.blockBackward = true},
+        a: () => { this.blockLeft = true},
+        ArrowLeft: () => { this.blockLeft = true},
+        d: () => { this.blockRight = true},
+        ArrowRight: () => { this.blockRight = true}
+    };
     
     document.onkeydown = (event) => {
-        event.preventDefault();
         switch( true ){
             //move up
             case event.key == "w" || event.key == "ArrowUp":
-                avatarDirection = upDirection;
-                // rotate
-                this.moveSpeed > 0 ? avatarObject.rotation.y = -Math.PI / 2 : avatarObject.rotation.y = Math.PI / 2;
-                // move
-                this.direction.x = () => collisionDirection.x <= 0 ? UP * this.moveSpeed : 0;
+                this.moveForward = true;
+                avatarObject.rotation.y = -Math.PI / 2;
             break; 
             //move down
             case event.key == "s" || event.key == "ArrowDown":
-                // rotate
-                this.moveSpeed > 0 ? avatarObject.rotation.y = Math.PI / 2 : avatarObject.rotation.y = -Math.PI / 2;
-                // move
-                this.direction.x = () => collisionDirection.x >= 0 ? DOWN * this.moveSpeed : 0;
+                this.moveBackward = true;
+                avatarObject.rotation.y = Math.PI / 2;
             break; 
             //move left
             case event.key == "a" || event.key == "ArrowLeft":
-                // rotate
-                this.moveSpeed > 0 ? avatarObject.rotation.y = 0 : avatarObject.rotation.y = Math.PI;
-                // move
-                this.direction.z = () => collisionDirection.z >= 0 ? LEFT * this.moveSpeed : 0;
+                this.moveLeft = true;
+                avatarObject.rotation.y = 0;
             break; 
             //move right
             case event.key == "d" || event.key == "ArrowRight":
-                // rotate
-                this.moveSpeed > 0 ? avatarObject.rotation.y = Math.PI : avatarObject.rotation.y = 0;
-                // move
-                this.direction.z = () => collisionDirection.z <= 0 ? RIGHT * this.moveSpeed : 0;
-            break; 
+                this.moveRight = true;
+                avatarObject.rotation.y = Math.PI;
+            break;
         }
+        this.direction.x = ( Number( this.moveForward ) - Number( this.moveBackward )) * this.moveSpeed;
+        this.direction.z = ( Number( this.moveLeft ) - Number( this.moveRight  )) * this.moveSpeed;
     };
     document.onkeyup = () => {
-        moveActivation();
+        this.moveForward = this.moveBackward = this.moveLeft = this.moveRight = false;    
+        this.direction.x = 0;
+        this.direction.z = 0;
     };
-    function moveActivation(){
-        // this.moveForward = this.moveBackward = this.moveLeft = this.moveRight = false;    
-        this.direction.x = () => 0;
-        this.direction.z = () => 0;
-        if (avatarObject.position.x > 1) { this.moveSpeed = -Math.abs(this.moveSpeed); }
-        else { this.moveSpeed = Math.abs(this.moveSpeed); }
-    }
 };

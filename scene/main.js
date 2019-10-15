@@ -1,12 +1,11 @@
 window.addEventListener('resize', onWindowResize, false);
-
 //Debugg options
 //Select true for skip config menu and seek to scene directly
 let debbugerSkipOption = true;
 //select type of controls = "camera" for free camera control or "avatar" for avatar keys control
 const typeOfControls = "avatar";// options: ["avatar", "camera"]
 
-let camera, scene, renderer, controls, avatarControls, collisionCube, previousCollision,
+let camera, scene, renderer, controls, avatarControls, collisionCube, previousCollision, animLoader, headanimLoader, mixer, headmixer, bodyModel, headModel, avatarAnimations, avatarHeadAnimation,
     width = window.innerWidth,
     height = window.innerHeight;
 
@@ -22,10 +21,8 @@ avatar.name = 'avatar';
 
 let interactiveObjects = [];
 
-let movingDirection = new THREE.Object3D();
-
 const plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
-const modelos_head = ['head_1', 'head_2','head_3', 'head_4', 'head_5'];
+const modelos_head = ['head_1anim', 'head_2','head_3', 'head_4', 'head_5'];
 const modelos_body = ['body_1','body_2','body_3','body_4', 'body_5', 'body_6'];
 
 let initialBody = initialHead = 0;
@@ -36,8 +33,6 @@ let saveData = {};
 
 let turnOnCollision = false;
 
-collisionDirection = new THREE.Vector3( 0, 0, 0 );
-
 $(document).ready(function () {
     generateMenu();
     initRender();
@@ -46,12 +41,7 @@ $(document).ready(function () {
         skipMenus(JSON.parse( localStorage.getItem('configDataObject')));
     }
     if( debbugerSkipOption == false ) localStorage.removeItem('configDataObject');
-
-    var socket = io.connect('https://34.240.9.59:3031');
-
-    socket.emit('UserDatas', function(data) {
-        console.log(data);
-    });
+    var socket = io.connect('http://34.240.9.59:3031', { 'forceNew': true });
 });
 
 function generateMenu(){
@@ -64,7 +54,6 @@ function setHead(value){
     initialHead += value;
     if(initialHead < 0) initialHead = modelos_head.length -1;
     if(initialHead > modelos_head.length -1) initialHead = 0;
-    console.log(initialHead);
     if( typeof modelos_head[initialHead] !== 'undefined'  ) {
         document.getElementById("selectorHeadBox").src = 'images/avatarHeads/'+ modelos_head[initialHead] +'.png';
         avatarConfig.head = modelos_head[initialHead];
@@ -91,6 +80,7 @@ function initRender() {
     renderer.setSize(width, height);
     renderer.setClearColor(0xffffff, 0);
     renderer.setViewport(0, 0, width, height);
+    renderer.gammaOutput = true;
     renderer.getMaxAnisotropy();
 
     element = renderer.domElement;
@@ -132,8 +122,10 @@ function initRender() {
 function loadAvatar(parts) {
 
     //remove previous avatar elements created
-    avatar.remove(avatar.children[1]);
-    avatar.remove(avatar.children[0]);
+    scene.remove(avatar);
+    for (var i = avatar.children.length - 1; i >= 0; i--) {
+        avatar.remove(avatar.children[i]);
+    }
 
     //Promise to control de % of objects loading
     let onProgress = function (xhr) {
@@ -148,33 +140,23 @@ function loadAvatar(parts) {
     let onError = function (xhr) {
     };
 
-    //load selected head and add to avatar group 
-    let headLoader = new THREE.MTLLoader();
-    headLoader.setPath('models/avatars/heads/');
-    headLoader.setMaterialOptions ( { side: THREE.DoubleSide } );
-    headLoader.load( parts.head +'.mtl', function (materials) {
-        materials.preload();
-        let headObjLoader = new THREE.OBJLoader();
-        headObjLoader.setMaterials(materials);
-        headObjLoader.setPath('models/avatars/heads/');
-        headObjLoader.load( parts.head+'.obj', function (elements) {
-            avatar.add(elements);
-        }, onProgress, onError);
-    });
+    animLoader = new THREE.GLTFLoader();
+    animLoader.load( 'models/avatars/bodies/' + avatarConfig.body + '.glb', function ( gltf ) {
+        bodyModel = gltf.scene;
+        avatarAnimations = gltf.animations;
+        bodyModel.name = 'body';
+        avatar.add( bodyModel );
+        mixer = new THREE.AnimationMixer( bodyModel );
+    }, onProgress, onError);
 
-    //load selected body & add to avatar group
-    let mtlLoader = new THREE.MTLLoader();
-    mtlLoader.setPath('models/avatars/bodies/');
-    mtlLoader.setMaterialOptions ( { side: THREE.DoubleSide } );
-    mtlLoader.load( parts.body +'.mtl', function (materials) {
-        materials.preload();
-        let objLoader = new THREE.OBJLoader();
-        objLoader.setMaterials(materials);
-        objLoader.setPath('models/avatars/bodies/');
-        objLoader.load( parts.body +'.obj', function (elements) {
-            avatar.add(elements);
-        }, onProgress, onError);
-    });
+    headanimLoader = new THREE.GLTFLoader();
+    headanimLoader.load( 'models/avatars/heads/' + avatarConfig.head + '.glb', function ( gltf ) {
+        headModel = gltf.scene;
+        avatarHeadAnimation = gltf.animations;
+        headModel.name = 'head';
+        avatar.add( headModel );
+        headmixer = new THREE.AnimationMixer( headModel );
+    }, onProgress, onError);
 
     //adding cube inside avatar model to check collisions
     let collisionCubeGeometry = new THREE.BoxGeometry(0.07, 0.06, 0.06);
@@ -186,12 +168,14 @@ function loadAvatar(parts) {
     avatar.add(collisionCube);
     turnOnCollision = true;
     scene.add(avatar);
+    avatarControls.checkCollision = () => checkCollision(collisionCube);
 }
 
 function loadOffice(officeName) {
     interactiveObjects = [];
     tl.tweenTo("openApp");
     $('#container').removeClass('displayOn');
+    scene.remove(planta);
     planta.remove(planta.children[0]);
     let onProgress = function (xhr) {
         if (xhr.lengthComputable) {
@@ -219,6 +203,7 @@ function loadOffice(officeName) {
                 if( plantObject.name.match("interact")){
                     interactiveObjects.push(plantObject);
                 }
+                plantObject.name = plantObject.name.replace('interact','');
                 if(Array.isArray(plantObject.material)){
                     plantObject.material.map(function(mat){
                         if(mat.name.substring(0,11) == 'transparent') mat.transparent = true;
@@ -256,19 +241,20 @@ function checkCollision(cube) {
         var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
         var collisionResults = ray.intersectObjects(interactiveObjects);
         if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
-            moveRight = false;
             if( previousCollision == collisionResults[0].object.name ){
-                movingDirection = avatarDirection;
-                console.log(collisionDirection);
+                doSomething(collisionResults[0].object.name);
+                debug('[Coll] ' + collisionResults[0].object.name);
+                return collisionResults[0];
             }
             else {
                 previousCollision = collisionResults[0].object.name;
-                console.log(collisionResults[0].object.name);
+                debug('[Coll] ' + collisionResults[0].object.name);
+                return collisionResults[0];
             }
-        } else {
-            collisionDirection = new THREE.Vector3( 0, 0, 0); 
         }
     }
+
+    debug('');
 }
 
 function onWindowResize() {
@@ -278,6 +264,10 @@ function onWindowResize() {
 }
 
 function animate() {
+
+    var dt = clock.getDelta();
+    if ( mixer ) mixer.update( dt );
+    if ( headmixer ) headmixer.update( dt );
 
     setTimeout(function() {
         requestAnimationFrame(animate);
@@ -289,11 +279,22 @@ function animate() {
         controls.update(clock.getDelta());
     }
     if ( avatarControls != undefined ) {
-        // camera.lookAt(avatar.position);
-        avatar.position.z += avatarControls.direction.z();
-        avatar.position.x -= avatarControls.direction.x();
-        camera.position.z = avatar.position.z;
-        camera.position.x = avatar.position.x + 0.5;
+            if(mixer){
+                if(avatarControls.direction.x != 0 || avatarControls.direction.z != 0) {
+                    mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name ==="walk") ] ).play();
+                    headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name ==="walk") ] ).play();
+                }
+                else {
+                    mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name ==="walk") ] ).stop();
+                    headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name ==="walk") ] ).stop();
+                }
+            }
+            camera.lookAt(avatar.position);
+            avatar.position.z += avatarControls.direction.z;
+            avatar.position.x -= avatarControls.direction.x;
+            avatarControls.blockIfCollision();
+            camera.position.x = avatar.position.x + 0.5;
+            camera.position.z = avatar.position.z;
     }
     render();
     TWEEN.update();
@@ -301,7 +302,8 @@ function animate() {
 
 function render() {
     renderer.render(scene, camera);
-    if(turnOnCollision) checkCollision(collisionCube);
+    // TODO: quitar
+    // if(turnOnCollision) checkCollision(collisionCube);
 }
 
 function movement(value, object, delay, duration, easingType) {
