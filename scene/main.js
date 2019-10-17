@@ -140,30 +140,30 @@ function loadAvatar(parts) {
     let onError = function (xhr) {
     };
 
-    animLoader = new THREE.GLTFLoader();
-    animLoader.load( 'models/avatars/bodies/' + avatarConfig.body + '.glb', function ( gltf ) {
-        bodyModel = gltf.scene;
-        avatarAnimations = gltf.animations;
-        bodyModel.name = 'body';
-        avatar.add( bodyModel );
-        mixer = new THREE.AnimationMixer( bodyModel );
-    }, onProgress, onError);
+    // animLoader = new THREE.GLTFLoader();
+    // animLoader.load( 'models/avatars/bodies/' + avatarConfig.body + '.glb', function ( gltf ) {
+    //     bodyModel = gltf.scene;
+    //     avatarAnimations = gltf.animations;
+    //     bodyModel.name = 'body';
+    //     avatar.add( bodyModel );
+    //     mixer = new THREE.AnimationMixer( bodyModel );
+    // }, onProgress, onError);
 
-    headanimLoader = new THREE.GLTFLoader();
-    headanimLoader.load( 'models/avatars/heads/' + avatarConfig.head + '.glb', function ( gltf ) {
-        headModel = gltf.scene;
-        avatarHeadAnimation = gltf.animations;
-        headModel.name = 'head';
-        avatar.add( headModel );
-        headmixer = new THREE.AnimationMixer( headModel );
-    }, onProgress, onError);
+    // headanimLoader = new THREE.GLTFLoader();
+    // headanimLoader.load( 'models/avatars/heads/' + avatarConfig.head + '.glb', function ( gltf ) {
+    //     headModel = gltf.scene;
+    //     avatarHeadAnimation = gltf.animations;
+    //     headModel.name = 'head';
+    //     avatar.add( headModel );
+    //     headmixer = new THREE.AnimationMixer( headModel );
+    // }, onProgress, onError);
 
     //adding cube inside avatar model to check collisions
-    let collisionCubeGeometry = new THREE.BoxGeometry(0.07, 0.06, 0.06);
+    let collisionCubeGeometry = new THREE.BoxGeometry(0.06, 0.06, 0.06);
     let collisionCubeMaterial = new THREE.MeshLambertMaterial({color: 0xff2255});
     collisionCube = new THREE.Mesh(collisionCubeGeometry, collisionCubeMaterial);
     collisionCube.name = 'collisionCube';
-    collisionCube.visible = false;
+    collisionCube.visible = true;
     collisionCube.position.y = 0.06;
     avatar.add(collisionCube);
     turnOnCollision = true;
@@ -241,20 +241,21 @@ function checkCollision(cube) {
         var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
         var collisionResults = ray.intersectObjects(interactiveObjects);
         if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
-            if( previousCollision == collisionResults[0].object.name ){
-                doSomething(collisionResults[0].object.name);
-                debug('[Coll] ' + collisionResults[0].object.name);
-                return collisionResults[0];
+            var nearCol = collisionResults.reduce((max = {}, item) => item.distance < max.distance ? max : item);
+            if( previousCollision == nearCol.object.name ){
+                doSomething(nearCol.object.name);
+                debug(nearCol, originPoint);
+                return nearCol;
             }
             else {
-                previousCollision = collisionResults[0].object.name;
-                debug('[Coll] ' + collisionResults[0].object.name);
-                return collisionResults[0];
+                previousCollision = nearCol.object.name;
+                debug(nearCol, originPoint);
+                return nearCol;
             }
         }
     }
 
-    debug('');
+    //debug('');
 }
 
 function onWindowResize() {
@@ -268,10 +269,6 @@ function animate() {
     var dt = clock.getDelta();
     if ( mixer ) mixer.update( dt );
     if ( headmixer ) headmixer.update( dt );
-
-    setTimeout(function() {
-        requestAnimationFrame(animate);
-    }, 1000 / 30);
 
     camera.updateMatrixWorld();
 
@@ -298,6 +295,10 @@ function animate() {
     }
     render();
     TWEEN.update();
+
+    setTimeout(function() {
+        requestAnimationFrame(animate);
+    }, 1000 / 30);
 }
 
 function render() {

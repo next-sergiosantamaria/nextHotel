@@ -1,7 +1,7 @@
 keyControls = function(avatarObject) {
 
     this.mouseClicked = false;
-    this.moveSpeed = 0.02;
+    this.moveSpeed = 0.015;
     
     this.moveForward = false;
     this.moveBackward = false;
@@ -32,7 +32,8 @@ keyControls = function(avatarObject) {
     }
 
     this.blockIfCollision = () => {
-        if (this.checkCollision()) {
+        const collision = this.checkCollision();
+        if (collision) {
             avatarObject.position.z -= this.direction.z * 2;
             avatarObject.position.x += this.direction.x * 2;
             this.moveForward = this.moveBackward = this.moveLeft = this.moveRight = false;    
