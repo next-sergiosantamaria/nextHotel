@@ -295,8 +295,10 @@ function animate() {
                         curAction.stop();
                     } );
 
+                    bodyClip.setEffectiveTimeScale(3);
                     bodyClip.play();
-                    headClip.play();
+                    headClip.setEffectiveTimeScale(3);
+                    headClip.play();                    
                     console.log("Comienza a " + readedAction);
                 break;
                 case 'walk':
