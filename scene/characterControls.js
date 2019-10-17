@@ -13,7 +13,6 @@ keyControls = function(avatarObject) {
 
     this.direction = { "x":0, "y":0, "z":0 };
     this.action = "walk";
-    this.jumpCount = 0;
     
     document.getElementById("container").onmousedown  = () => {this.mouseClicked = true;}
     document.getElementById("container").onmouseup  = () => {this.mouseClicked = false;}
@@ -61,7 +60,6 @@ keyControls = function(avatarObject) {
             //jumping
             case event.key == " ":
                 this.action = "jump";
-                this.jumpCount = 0;
             break;
         }
         this.direction.x = ( Number( this.moveForward ) - Number( this.moveBackward )) * this.moveSpeed;
@@ -73,12 +71,4 @@ keyControls = function(avatarObject) {
         this.direction.z = 0;
     };
 
-    function checkJump() {
-        if(this.action === "jump" && this.jumpCount <= 3) {
-            this.jumpCount++;
-        } else {
-            this.action = "walk";
-            this.jumpCount = 0;
-        }
-    }
 };

@@ -33,7 +33,6 @@ let saveData = {};
 
 let turnOnCollision = false;
 
-let jumpCount = 0;
 let jumping = false;
 
 $(document).ready(function () {
@@ -281,33 +280,30 @@ function animate() {
                 console.log("Tecla pulsada: " + readedAction);            
 
                 if(readedAction === "jump") {
-                    console.log("Se incrementa salto");
-                    mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name === "jump") ] ).play();
-                    headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name === "jump") ] ).play();
                     jumping = true;
-                } else if(jumping && jumpCount <= 3) {
-                    jumpCount++;
-                } else if (jumping){
-                    jumpCount = 0;
-                    jumping = false;
-                    console.log("Se para salto");     
-                    mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name === "jump") ] ).stop();
-                    headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name === "jump") ] ).stop();              
-                } else if(avatarControls.direction.x != 0 || avatarControls.direction.z != 0) {
+                }
+
+                if(avatarControls.direction.x != 0 || avatarControls.direction.z != 0 || readedAction == "jump") {
                         mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name === readedAction) ] ).play();
                         headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name === readedAction) ] ).play();
                         console.log("Comienza a " + readedAction);
                 } else {
                     mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name === readedAction) ] ).stop();
                     headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name === readedAction) ] ).stop();
-                    console.log("Se para " + readedAction);
-                }
 
-                    camera.lookAt(avatar.position);
-                    avatar.position.z += avatarControls.direction.z;
-                    avatar.position.x -= avatarControls.direction.x;
-                    camera.position.x = avatar.position.x + 0.5;
-                    camera.position.z = avatar.position.z;
+                    if(jumping) {
+                        mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name === "jump") ] ).stop();
+                        headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name === "jump") ] ).stop();
+                    }
+
+                    console.log("Se para " + readedAction);
+                }                
+
+                camera.lookAt(avatar.position);
+                avatar.position.z += avatarControls.direction.z;
+                avatar.position.x -= avatarControls.direction.x;
+                camera.position.x = avatar.position.x + 0.5;
+                camera.position.z = avatar.position.z;
                 
             }
             
