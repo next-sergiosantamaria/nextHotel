@@ -275,38 +275,49 @@ function animate() {
         controls.update(clock.getDelta());
     }
     if ( avatarControls != undefined ) {
-            if(mixer){
-                let readedAction = avatarControls.action != undefined?avatarControls.action:"walk";
-                console.log("Tecla pulsada: " + readedAction);            
+        if(mixer){
+            let readedAction = avatarControls.action != undefined?avatarControls.action:"walk";
+            console.log("Tecla pulsada: " + readedAction);                
 
-                if(readedAction === "jump") {
-                    jumping = true;
-                }
+            let bodyAnimation = avatarAnimations[ avatarAnimations.findIndex(x => x.name === readedAction) ];
+            let headAnimation = avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name === readedAction) ];
+            let bodyClip = mixer.clipAction( bodyAnimation );
+            let headClip = headmixer.clipAction( headAnimation );
 
-                if(avatarControls.direction.x != 0 || avatarControls.direction.z != 0 || readedAction == "jump") {
-                        mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name === readedAction) ] ).play();
-                        headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name === readedAction) ] ).play();
-                        console.log("Comienza a " + readedAction);
-                } else {
-                    mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name === readedAction) ] ).stop();
-                    headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name === readedAction) ] ).stop();
+            switch(readedAction) {
+                case 'jump': 
+                    mixer.addEventListener( 'loop', function( e ) {
+                        var curAction = e.action;
+                        curAction.stop();
+                    } );
+                    headmixer.addEventListener( 'loop', function( e ) {
+                        var curAction = e.action;
+                        curAction.stop();
+                    } );
 
-                    if(jumping) {
-                        mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name === "jump") ] ).stop();
-                        headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name === "jump") ] ).stop();
-                    }
-
-                    console.log("Se para " + readedAction);
-                }                
-
-                camera.lookAt(avatar.position);
-                avatar.position.z += avatarControls.direction.z;
-                avatar.position.x -= avatarControls.direction.x;
-                camera.position.x = avatar.position.x + 0.5;
-                camera.position.z = avatar.position.z;
-                
+                    bodyClip.play();
+                    headClip.play();
+                    console.log("Comienza a " + readedAction);
+                break;
+                case 'walk':
+                        if(avatarControls.direction.x != 0 || avatarControls.direction.z != 0) {
+                            bodyClip.play();
+                            headClip.play();
+                            console.log("Comienza a " + readedAction);
+                        } else {
+                            bodyClip.stop();
+                            headClip.stop();
+                            console.log("Se para " + readedAction);
+                        }
+        
+                        camera.lookAt(avatar.position);
+                        avatar.position.z += avatarControls.direction.z;
+                        avatar.position.x -= avatarControls.direction.x;
+                        camera.position.x = avatar.position.x + 0.5;
+                        camera.position.z = avatar.position.z;
+                break;
             }
-            
+        }            
     }
     render();
     TWEEN.update();
