@@ -12,6 +12,8 @@ keyControls = function(avatarObject) {
     this.mouse = new THREE.Vector2();
 
     this.direction = { "x":0, "y":0, "z":0 };
+    this.action = "walk";
+    this.jumpCount = 0;
     
     document.getElementById("container").onmousedown  = () => {this.mouseClicked = true;}
     document.getElementById("container").onmouseup  = () => {this.mouseClicked = false;}
@@ -36,22 +38,31 @@ keyControls = function(avatarObject) {
             case event.key == "w" || event.key == "ArrowUp":
                 this.moveForward = true;
                 avatarObject.rotation.y = -Math.PI / 2;
+                this.action = "walk";
             break; 
             //move down
             case event.key == "s" || event.key == "ArrowDown":
                 this.moveBackward = true;
                 avatarObject.rotation.y = Math.PI / 2;
+                this.action = "walk";
             break; 
             //move left
             case event.key == "a" || event.key == "ArrowLeft":
                 this.moveLeft = true;
                 avatarObject.rotation.y = 0;
+                this.action = "walk";
             break; 
             //move right
             case event.key == "d" || event.key == "ArrowRight":
                 this.moveRight = true;
                 avatarObject.rotation.y = Math.PI;
-            break; 
+                this.action = "walk";
+            break;
+            //jumping
+            case event.key == " ":
+                this.action = "jump";
+                this.jumpCount = 0;
+            break;
         }
         this.direction.x = ( Number( this.moveForward ) - Number( this.moveBackward )) * this.moveSpeed;
         this.direction.z = ( Number( this.moveLeft ) - Number( this.moveRight )) * this.moveSpeed;
@@ -61,4 +72,13 @@ keyControls = function(avatarObject) {
         this.direction.x = 0;
         this.direction.z = 0;
     };
+
+    function checkJump() {
+        if(this.action === "jump" && this.jumpCount <= 3) {
+            this.jumpCount++;
+        } else {
+            this.action = "walk";
+            this.jumpCount = 0;
+        }
+    }
 };

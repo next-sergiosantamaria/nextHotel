@@ -22,7 +22,7 @@ avatar.name = 'avatar';
 let interactiveObjects = [];
 
 const plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
-const modelos_head = ['head_1anim', 'head_2','head_3', 'head_4', 'head_5'];
+const modelos_head = ['head_1', 'head_2','head_3', 'head_4', 'head_5'];
 const modelos_body = ['body_1','body_2','body_3','body_4', 'body_5', 'body_6'];
 
 let initialBody = initialHead = 0;
@@ -32,6 +32,9 @@ let avatarConfig = { head: 'head_1', body: 'body_1' };
 let saveData = {};
 
 let turnOnCollision = false;
+
+let jumpCount = 0;
+let jumping = false;
 
 $(document).ready(function () {
     generateMenu();
@@ -272,22 +275,43 @@ function animate() {
     if (controls) {
         controls.update(clock.getDelta());
     }
-    if ( avatarControls != undefined ) {
+    if ( avatarControls != undefined ) {        
             if(mixer){
+                let readedAction = avatarControls.action != undefined?avatarControls.action:"walk";
+                console.log("Tecla pulsada: " + readedAction);            
+
+                if(readedAction === "jump" || (jumping && jumpCount <= 3)) {
+                    console.log("Se incrementa salto");
+                    jumpCount++;
+                    jumping = true;
+                } else if (jumping){
+                    jumpCount = 0;
+                    jumping = false;
+                    console.log("Se para salto");
+                }
+
                 if(avatarControls.direction.x != 0 || avatarControls.direction.z != 0) {
-                    mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name ==="walk") ] ).play();
-                    headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name ==="walk") ] ).play();
+                    mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name === readedAction) ] ).play();
+                    headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name === readedAction) ] ).play();
+                    console.log("Comienza a " + readedAction);
+                } else {
+                    mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name === readedAction) ] ).stop();
+                    headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name === readedAction) ] ).stop();
+                    console.log("Se para " + readedAction);
                 }
-                else {
-                    mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name ==="walk") ] ).stop();
-                    headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name ==="walk") ] ).stop();
+
+                if(!jumping) {
+                    mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name === "jump") ] ).stop();
+                    headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name === "jump") ] ).stop();
                 }
+
+                camera.lookAt(avatar.position);
+                avatar.position.z += avatarControls.direction.z;
+                avatar.position.x -= avatarControls.direction.x;
+                camera.position.x = avatar.position.x + 0.5;
+                camera.position.z = avatar.position.z;
             }
-            camera.lookAt(avatar.position);
-            avatar.position.z += avatarControls.direction.z;
-            avatar.position.x -= avatarControls.direction.x;
-            camera.position.x = avatar.position.x + 0.5;
-            camera.position.z = avatar.position.z;
+            
     }
     render();
     TWEEN.update();
