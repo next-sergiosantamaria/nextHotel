@@ -140,30 +140,30 @@ function loadAvatar(parts) {
     let onError = function (xhr) {
     };
 
-    // animLoader = new THREE.GLTFLoader();
-    // animLoader.load( 'models/avatars/bodies/' + avatarConfig.body + '.glb', function ( gltf ) {
-    //     bodyModel = gltf.scene;
-    //     avatarAnimations = gltf.animations;
-    //     bodyModel.name = 'body';
-    //     avatar.add( bodyModel );
-    //     mixer = new THREE.AnimationMixer( bodyModel );
-    // }, onProgress, onError);
+    animLoader = new THREE.GLTFLoader();
+    animLoader.load( 'models/avatars/bodies/' + avatarConfig.body + '.glb', function ( gltf ) {
+        bodyModel = gltf.scene;
+        avatarAnimations = gltf.animations;
+        bodyModel.name = 'body';
+        avatar.add( bodyModel );
+        mixer = new THREE.AnimationMixer( bodyModel );
+    }, onProgress, onError);
 
-    // headanimLoader = new THREE.GLTFLoader();
-    // headanimLoader.load( 'models/avatars/heads/' + avatarConfig.head + '.glb', function ( gltf ) {
-    //     headModel = gltf.scene;
-    //     avatarHeadAnimation = gltf.animations;
-    //     headModel.name = 'head';
-    //     avatar.add( headModel );
-    //     headmixer = new THREE.AnimationMixer( headModel );
-    // }, onProgress, onError);
+    headanimLoader = new THREE.GLTFLoader();
+    headanimLoader.load( 'models/avatars/heads/' + avatarConfig.head + '.glb', function ( gltf ) {
+        headModel = gltf.scene;
+        avatarHeadAnimation = gltf.animations;
+        headModel.name = 'head';
+        avatar.add( headModel );
+        headmixer = new THREE.AnimationMixer( headModel );
+    }, onProgress, onError);
 
     //adding cube inside avatar model to check collisions
     let collisionCubeGeometry = new THREE.BoxGeometry(0.06, 0.06, 0.06);
     let collisionCubeMaterial = new THREE.MeshLambertMaterial({color: 0xff2255});
     collisionCube = new THREE.Mesh(collisionCubeGeometry, collisionCubeMaterial);
     collisionCube.name = 'collisionCube';
-    collisionCube.visible = true;
+    collisionCube.visible = false;
     collisionCube.position.y = 0.06;
     avatar.add(collisionCube);
     turnOnCollision = true;
@@ -242,6 +242,7 @@ function checkCollision(cube) {
         var collisionResults = ray.intersectObjects(interactiveObjects);
         if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
             var nearCol = collisionResults.reduce((max = {}, item) => item.distance < max.distance ? max : item);
+            avatarControls.blockIfCollision();
             if( previousCollision == nearCol.object.name ){
                 doSomething(nearCol.object.name);
                 debug(nearCol, originPoint);
@@ -289,7 +290,6 @@ function animate() {
             camera.lookAt(avatar.position);
             avatar.position.z += avatarControls.direction.z;
             avatar.position.x -= avatarControls.direction.x;
-            avatarControls.blockIfCollision();
             camera.position.x = avatar.position.x + 0.5;
             camera.position.z = avatar.position.z;
     }
@@ -303,8 +303,7 @@ function animate() {
 
 function render() {
     renderer.render(scene, camera);
-    // TODO: quitar
-    // if(turnOnCollision) checkCollision(collisionCube);
+    if(turnOnCollision) checkCollision(collisionCube);
 }
 
 function movement(value, object, delay, duration, easingType) {

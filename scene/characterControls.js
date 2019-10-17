@@ -32,14 +32,11 @@ keyControls = function(avatarObject) {
     }
 
     this.blockIfCollision = () => {
-        const collision = this.checkCollision();
-        if (collision) {
-            avatarObject.position.z -= this.direction.z * 2;
-            avatarObject.position.x += this.direction.x * 2;
-            this.moveForward = this.moveBackward = this.moveLeft = this.moveRight = false;    
-            this.direction.x = 0;
-            this.direction.z = 0;
-        }
+        avatarObject.position.z -= this.direction.z * 1;
+        avatarObject.position.x += this.direction.x * 1;
+        this.moveForward = this.moveBackward = this.moveLeft = this.moveRight = false;    
+        this.direction.x = 0;
+        this.direction.z = 0;
     }
 
     this.blockPosition = {
