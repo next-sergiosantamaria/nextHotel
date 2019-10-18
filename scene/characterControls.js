@@ -1,7 +1,7 @@
 keyControls = function(avatarObject) {
 
     this.mouseClicked = false;
-    this.moveSpeed = 0.015;
+    this.moveSpeed = 0.02;
     
     this.moveForward = false;
     this.moveBackward = false;

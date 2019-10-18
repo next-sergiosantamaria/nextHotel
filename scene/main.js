@@ -234,6 +234,7 @@ function skipMenus(savedDatas){
 function checkCollision(cube) {
     var wpVector = new THREE.Vector3();
     var originPoint = cube.getWorldPosition(wpVector).clone();
+    var nearCol;
     for (var vertexIndex = 0; vertexIndex < cube.geometry.vertices.length; vertexIndex++) {
         var localVertex = cube.geometry.vertices[vertexIndex].clone();
         var globalVertex = localVertex.applyMatrix4(cube.matrix);
@@ -241,7 +242,7 @@ function checkCollision(cube) {
         var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
         var collisionResults = ray.intersectObjects(interactiveObjects);
         if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
-            var nearCol = collisionResults.reduce((max = {}, item) => item.distance < max.distance ? max : item);
+            nearCol = collisionResults.reduce((max = {}, item) => item.distance < max.distance ? max : item);
             avatarControls.blockIfCollision();
             if( previousCollision == nearCol.object.name ){
                 doSomething(nearCol.object.name);
@@ -254,9 +255,10 @@ function checkCollision(cube) {
                 return nearCol;
             }
         }
+        // if (!nearCol) {
+        //     setTimeout(() => debug(''), 1000);
+        // }
     }
-
-    //debug('');
 }
 
 function onWindowResize() {
