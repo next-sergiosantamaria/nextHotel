@@ -61,7 +61,7 @@ $(document).ready(function () {
         if( data.name && data.name !==  ownavatarName ) {
             console.log('actualuzar usuarios: ', data.name);
             scene.getObjectByName( data.name ).position.set(data.position.x, data.position.y, data.position.z);
-            scene.getObjectByName( data.name ).quaternion.copy(data.rotation);
+            scene.getObjectByName( data.name ).rotation.y = data.rotation;
         }
     });
 });
@@ -195,8 +195,8 @@ function loadAvatar(externalAvatar) {
     ownavatarName = document.getElementById("inputaNameLabel").value;
     socket.emit('userAparition',{name: ownavatarName, avatarConfig: avatarConfig });
     setInterval(() => { 
-        socket.emit('avatarstatus', { name: ownavatarName, position: avatar.position, rotation: avatar.quaternion, status: avatarControls.action }); 
-    }, 300);
+        socket.emit('avatarstatus', { name: ownavatarName, position: avatar.position, rotation: avatar.rotation.y, status: avatarControls.action }); 
+    }, 10);
 }
 function loadAvatarExternal(externalAvatar) {
     externaUsersList[externalAvatar.name].avatarModel = new THREE.Object3D();
