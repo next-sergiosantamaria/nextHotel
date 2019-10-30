@@ -13,6 +13,7 @@ keyControls = function(avatarObject) {
 
     this.direction = { "x":0, "y":0, "z":0 };
     this.checkCollision = () => false;
+    this.action = "walk";
     
     document.getElementById("container").onmousedown  = () => {this.mouseClicked = true;}
     document.getElementById("container").onmouseup  = () => {this.mouseClicked = false;}
@@ -56,21 +57,29 @@ keyControls = function(avatarObject) {
             case event.key == "w" || event.key == "ArrowUp":
                 this.moveForward = true;
                 avatarObject.rotation.y = -Math.PI / 2;
+                this.action = "walk";
             break; 
             //move down
             case event.key == "s" || event.key == "ArrowDown":
                 this.moveBackward = true;
                 avatarObject.rotation.y = Math.PI / 2;
+                this.action = "walk";
             break; 
             //move left
             case event.key == "a" || event.key == "ArrowLeft":
                 this.moveLeft = true;
                 avatarObject.rotation.y = 0;
+                this.action = "walk";
             break; 
             //move right
             case event.key == "d" || event.key == "ArrowRight":
                 this.moveRight = true;
                 avatarObject.rotation.y = Math.PI;
+                this.action = "walk";
+            break;
+            //jumping
+            case event.key == " ":
+                this.action = "jump";
             break;
         }
         this.direction.x = ( Number( this.moveForward ) - Number( this.moveBackward )) * this.moveSpeed;
@@ -80,5 +89,7 @@ keyControls = function(avatarObject) {
         this.moveForward = this.moveBackward = this.moveLeft = this.moveRight = false;    
         this.direction.x = 0;
         this.direction.z = 0;
+        this.action = "walk";
     };
+
 };

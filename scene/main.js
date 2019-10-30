@@ -1,11 +1,12 @@
 window.addEventListener('resize', onWindowResize, false);
 //Debugg options
 //Select true for skip config menu and seek to scene directly
-let debbugerSkipOption = true;
+let debbugerSkipOption = false;
 //select type of controls = "camera" for free camera control or "avatar" for avatar keys control
 const typeOfControls = "avatar";// options: ["avatar", "camera"]
 
-let camera, scene, renderer, controls, avatarControls, collisionCube, previousCollision, animLoader, headanimLoader, mixer, headmixer, bodyModel, headModel, avatarAnimations, avatarHeadAnimation,
+let camera, scene, renderer, controls, avatarControls, collisionCube, previousCollision, animLoader, 
+headanimLoader, mixer, headmixer, bodyModel, headModel, avatarAnimations, avatarHeadAnimation, socket, ownavatarName,
     width = window.innerWidth,
     height = window.innerHeight;
 
@@ -22,7 +23,7 @@ avatar.name = 'avatar';
 let interactiveObjects = [];
 
 const plantas = ['manoteras', 'tablas2-P1', 'tablas2-P0', 'tablas2-P2'];
-const modelos_head = ['head_1anim', 'head_2','head_3', 'head_4', 'head_5'];
+const modelos_head = ['head_1', 'head_2','head_3', 'head_4', 'head_5'];
 const modelos_body = ['body_1','body_2','body_3','body_4', 'body_5', 'body_6'];
 
 let initialBody = initialHead = 0;
@@ -33,6 +34,8 @@ let saveData = {};
 
 let turnOnCollision = false;
 
+let jumping = false;
+
 $(document).ready(function () {
     generateMenu();
     initRender();
@@ -41,7 +44,17 @@ $(document).ready(function () {
         skipMenus(JSON.parse( localStorage.getItem('configDataObject')));
     }
     if( debbugerSkipOption == false ) localStorage.removeItem('configDataObject');
-    var socket = io.connect('http://34.240.9.59:3031', { 'forceNew': true });
+    //var socket = io.connect('http://34.240.9.59:3031', { 'forceNew': true });
+    socket = io.connect('http://192.168.0.157:3031', { 'forceNew': true });
+
+    socket.on('setNewUser', function (data) {
+        console.log('un nuevo usuario aparece', data.name);
+        if( data.name !==  ownavatarName ) loadAvatar(data.name);
+    });
+    
+    socket.on('refreshUsers', function (data) {
+        console.log('actualuzar usuarios: ', data.position);
+    });
 });
 
 function generateMenu(){
@@ -119,7 +132,7 @@ function initRender() {
     scene.add( directionalLight );
 }
 
-function loadAvatar(parts) {
+function loadAvatar(externalAvatar) {
 
     //remove previous avatar elements created
     scene.remove(avatar);
@@ -166,9 +179,17 @@ function loadAvatar(parts) {
     collisionCube.visible = false;
     collisionCube.position.y = 0.06;
     avatar.add(collisionCube);
+    avatar.name = externalAvatar ? externalAvatar : ownavatarName;
     turnOnCollision = true;
     scene.add(avatar);
     avatarControls.checkCollision = () => checkCollision(collisionCube);
+    if(!externalAvatar) {
+        ownavatarName = document.getElementById("inputaNameLabel").value;
+        socket.emit('userAparition',{name: ownavatarName, avatarConfig: avatarConfig });
+    }
+    setInterval(() => { 
+        socket.emit('avatarstatus', { name: ownavatarName, position: avatar.position, status: avatarControls.action }); 
+    }, 1000);
 }
 
 function loadOffice(officeName) {
@@ -220,7 +241,7 @@ function loadOffice(officeName) {
     });
     scene.add(planta);
     if(debbugerSkipOption == true) {
-        Object.assign(saveData, avatarConfig, { office: officeName });
+        Object.assign(saveData, avatarConfig, { office: officeName }, { userName: document.getElementById("inputaNameLabel").value });
         localStorage.setItem('configDataObject', JSON.stringify(saveData));
     }
 }
@@ -255,9 +276,6 @@ function checkCollision(cube) {
                 return nearCol;
             }
         }
-        // if (!nearCol) {
-        //     setTimeout(() => debug(''), 1000);
-        // }
     }
 }
 
@@ -279,21 +297,47 @@ function animate() {
         controls.update(clock.getDelta());
     }
     if ( avatarControls != undefined ) {
-            if(mixer){
-                if(avatarControls.direction.x != 0 || avatarControls.direction.z != 0) {
-                    mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name ==="walk") ] ).play();
-                    headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name ==="walk") ] ).play();
-                }
-                else {
-                    mixer.clipAction( avatarAnimations[ avatarAnimations.findIndex(x => x.name ==="walk") ] ).stop();
-                    headmixer.clipAction( avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name ==="walk") ] ).stop();
-                }
+        if(mixer){
+            let readedAction = avatarControls.action != undefined ? avatarControls.action : "walk";            
+
+            let bodyAnimation = avatarAnimations[ avatarAnimations.findIndex(x => x.name === readedAction) ];
+            let headAnimation = avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name === readedAction) ];
+            let bodyClip = mixer.clipAction( bodyAnimation );
+            let headClip = headmixer.clipAction( headAnimation );
+
+            switch(readedAction) {
+                case 'jump': 
+                    mixer.addEventListener( 'loop', function( e ) {
+                        var curAction = e.action;
+                        curAction.stop();
+                    } );
+                    headmixer.addEventListener( 'loop', function( e ) {
+                        var curAction = e.action;
+                        curAction.stop();
+                    } );
+
+                    bodyClip.setEffectiveTimeScale(3);
+                    bodyClip.play();
+                    headClip.setEffectiveTimeScale(3);
+                    headClip.play();                    
+                break;
+                case 'walk':
+                        if(avatarControls.direction.x != 0 || avatarControls.direction.z != 0) {
+                            bodyClip.play();
+                            headClip.play();
+                        } else {
+                            bodyClip.stop();
+                            headClip.stop();
+                        }
+        
+                        camera.lookAt(avatar.position);
+                        avatar.position.z += avatarControls.direction.z;
+                        avatar.position.x -= avatarControls.direction.x;
+                        camera.position.x = avatar.position.x + 0.5;
+                        camera.position.z = avatar.position.z;
+                break;
             }
-            camera.lookAt(avatar.position);
-            avatar.position.z += avatarControls.direction.z;
-            avatar.position.x -= avatarControls.direction.x;
-            camera.position.x = avatar.position.x + 0.5;
-            camera.position.z = avatar.position.z;
+        }            
     }
     render();
     TWEEN.update();

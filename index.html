@@ -17,7 +17,17 @@
         <div id="logosBox" class="logosBox">
             <img id="nextLogo" class="nextLogo" src="./images/next_logo_solo.png"></img>
             <img id="hotelLogo" class="hotelLogo" src="./images/hotel_logo_solo.png"></img>
-            <div onclick="tl.tweenTo('configAvatar')" class="startButon">Comenzar</div>
+            <div onclick="tl.tweenTo('configName')" class="startButon">Comenzar</div>
+        </div>
+        <div id="avatarNamegBox" class="avatarNamegBox">
+            <div class="stepTitle">Introduce un nombre para tu avatar:</div>
+            <div class="imputNameBox">
+                <input id="inputaNameLabel" type="text"/>
+            </div>
+            <div class="navigateButtons">
+                <div onclick="tl.reverse()" class="navigateBackButton">Volver</div>
+                <div onclick="tl.tweenTo('configAvatar')" class="navigateContinueButton">Continuar</div>
+            </div>
         </div>
         <div id="avatarConfigBox" class="avatarConfigBox">
             <div class="stepTitle">Personaliza tu avatar:</div>
