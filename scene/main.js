@@ -10,6 +10,8 @@ headanimLoader, mixer, headmixer, bodyModel, headModel, avatarAnimations, avatar
     width = window.innerWidth,
     height = window.innerHeight;
 
+let externaUsersList = {};    
+
 let clock = new THREE.Clock();
 
 let manager = new THREE.LoadingManager();
@@ -49,11 +51,18 @@ $(document).ready(function () {
 
     socket.on('setNewUser', function (data) {
         console.log('un nuevo usuario aparece', data.name);
-        if( data.name !==  ownavatarName ) loadAvatar(data.name);
+        if( data.name && data.name !==  ownavatarName ) {
+            Object.assign(externaUsersList, { [data.name]: data });
+            loadAvatarExternal(data);
+        }
     });
     
     socket.on('refreshUsers', function (data) {
-        console.log('actualuzar usuarios: ', data.position);
+        if( data.name && data.name !==  ownavatarName ) {
+            console.log('actualuzar usuarios: ', data.name);
+            position.set(data.position.x,scene.getObjectByName( data.name ). data.position.y, data.position.z);
+            scene.getObjectByName( data.name ).quaternion.copy(data.rotation);
+        }
     });
 });
 
@@ -183,13 +192,42 @@ function loadAvatar(externalAvatar) {
     turnOnCollision = true;
     scene.add(avatar);
     avatarControls.checkCollision = () => checkCollision(collisionCube);
-    if(!externalAvatar) {
-        ownavatarName = document.getElementById("inputaNameLabel").value;
-        socket.emit('userAparition',{name: ownavatarName, avatarConfig: avatarConfig });
-    }
+    ownavatarName = document.getElementById("inputaNameLabel").value;
+    socket.emit('userAparition',{name: ownavatarName, avatarConfig: avatarConfig });
     setInterval(() => { 
-        socket.emit('avatarstatus', { name: ownavatarName, position: avatar.position, status: avatarControls.action }); 
-    }, 1000);
+        socket.emit('avatarstatus', { name: ownavatarName, position: avatar.position, rotation: avatar.quaternion, status: avatarControls.action }); 
+    }, 300);
+}
+function loadAvatarExternal(externalAvatar) {
+    externaUsersList[externalAvatar.name].avatarModel = new THREE.Object3D();
+    externaUsersList[externalAvatar.name].animLoader = new THREE.GLTFLoader();
+    externaUsersList[externalAvatar.name].animLoader.load( 'models/avatars/bodies/' + externalAvatar.avatarConfig.body + '.glb', function ( gltf ) {
+        let bodyModel = gltf.scene;
+        externaUsersList[externalAvatar.name].avatarAnimations = gltf.animations;
+        bodyModel.name = externalAvatar.name;
+        externaUsersList[externalAvatar.name].avatarModel.add( bodyModel );
+        externaUsersList[externalAvatar.name].mixer = new THREE.AnimationMixer( bodyModel );
+    });
+
+    externaUsersList[externalAvatar.name].headanimLoader = new THREE.GLTFLoader();
+    externaUsersList[externalAvatar.name].headanimLoader.load( 'models/avatars/heads/' + externalAvatar.avatarConfig.head + '.glb', function ( gltf ) {
+        let headModel = gltf.scene;
+        externaUsersList[externalAvatar.name].avatarHeadAnimation = gltf.animations;
+        headModel.name = externalAvatar.name;
+        externaUsersList[externalAvatar.name].avatarModel.add( headModel );
+        externaUsersList[externalAvatar.name].headmixer = new THREE.AnimationMixer( headModel );
+    });
+
+    //adding cube inside avatar model to check collisions
+    let collisionCubeGeometry = new THREE.BoxGeometry(0.06, 0.06, 0.06);
+    let collisionCubeMaterial = new THREE.MeshLambertMaterial({color: 0xff2255});
+    externaUsersList[externalAvatar.name].collisionCube = new THREE.Mesh(collisionCubeGeometry, collisionCubeMaterial);
+    externaUsersList[externalAvatar.name].collisionCube.name = 'collisionCube';
+    externaUsersList[externalAvatar.name].collisionCube.visible = false;
+    externaUsersList[externalAvatar.name].collisionCube.position.y = 0.06;
+    externaUsersList[externalAvatar.name].avatarModel.add(collisionCube);
+    externaUsersList[externalAvatar.name].avatarModel.name = externalAvatar.name;
+    scene.add(externaUsersList[externalAvatar.name].avatarModel);
 }
 
 function loadOffice(officeName) {
@@ -236,7 +274,7 @@ function loadOffice(officeName) {
             elements.name = officeName;
             planta.add(elements);
             $('#container').addClass('displayOn');
-            loadAvatar(avatarConfig);
+            loadAvatar();
         }, onProgress, onError);
     });
     scene.add(planta);
