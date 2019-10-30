@@ -60,7 +60,7 @@ $(document).ready(function () {
     socket.on('refreshUsers', function (data) {
         if( data.name && data.name !==  ownavatarName ) {
             console.log('actualuzar usuarios: ', data.name);
-            position.set(data.position.x,scene.getObjectByName( data.name ). data.position.y, data.position.z);
+            scene.getObjectByName( data.name ).position.set(data.position.x, data.position.y, data.position.z);
             scene.getObjectByName( data.name ).quaternion.copy(data.rotation);
         }
     });
