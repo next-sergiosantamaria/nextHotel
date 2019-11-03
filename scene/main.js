@@ -38,9 +38,6 @@ let turnOnCollision = false;
 
 let jumping = false;
 
-socket = io.connect('http://34.240.9.59:3031', { 'forceNew': true });
-//socket = io.connect('http://192.168.0.157:3031', { 'forceNew': true });
-
 $(document).ready(function () {
     generateMenu();
     initRender();
@@ -49,7 +46,9 @@ $(document).ready(function () {
         skipMenus(JSON.parse( localStorage.getItem('configDataObject')));
     }
     if( debbugerSkipOption == false ) localStorage.removeItem('configDataObject');
-});
+
+    socket = io.connect('http://34.240.9.59:3031', { 'forceNew': true });
+    //socket = io.connect('http://192.168.0.157:3031', { 'forceNew': true });
 
 socket.on('refreshUsers', function (data) {
     if ( data.userName != undefined && data.userName != saveData.userName && data.office == saveData.office) {
@@ -61,6 +60,7 @@ socket.on('refreshUsers', function (data) {
             scene.getObjectByName( data.userName ).rotation.y = data.rotation;
         }
     }
+});
 });
 
 function generateMenu(){
