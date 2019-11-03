@@ -38,8 +38,8 @@ let turnOnCollision = false;
 
 let jumping = false;
 
-//var socket = io.connect('http://34.240.9.59:3031', { 'forceNew': true });
-socket = io.connect('http://192.168.0.157:3031', { 'forceNew': true });
+socket = io.connect('http://34.240.9.59:3031', { 'forceNew': true });
+//socket = io.connect('http://192.168.0.157:3031', { 'forceNew': true });
 
 $(document).ready(function () {
     generateMenu();
