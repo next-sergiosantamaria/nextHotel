@@ -193,7 +193,7 @@ function loadAvatar() {
     setInterval(() => {
         const userDataToSend = Object.assign(saveData, { position: avatar.position, rotation: avatar.rotation.y, status: avatarControls.action });
         socket.emit('loginAndStatusUser', userDataToSend);
-    }, 2000);
+    }, 100);
 }
 
 function loadAvatarExternal(externalAvatar) {
