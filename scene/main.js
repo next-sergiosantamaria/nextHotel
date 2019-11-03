@@ -47,20 +47,20 @@ $(document).ready(function () {
     }
     if( debbugerSkipOption == false ) localStorage.removeItem('configDataObject');
 
-    socket = io.connect('https://34.240.9.59:3031', { 'forceNew': true });
+    socket = io.connect('http://34.240.9.59:3031', { 'forceNew': true });
     //socket = io.connect('http://192.168.0.157:3031', { 'forceNew': true });
 
-socket.on('refreshUsers', function (data) {
-    if ( data.userName != undefined && data.userName != saveData.userName && data.office == saveData.office) {
-        if(!externaUsersList[data.userName]){
-            Object.assign(externaUsersList, { [data.userName]: data });
-            loadAvatarExternal(data);
-        } else {
-            scene.getObjectByName( data.userName ).position.set(data.position.x, data.position.y, data.position.z);
-            scene.getObjectByName( data.userName ).rotation.y = data.rotation;
+    socket.on('refreshUsers', function (data) {
+        if ( saveData.username && data.userName != undefined && data.userName != saveData.userName && data.office == saveData.office) {
+            if(!externaUsersList[data.userName]){
+                Object.assign(externaUsersList, { [data.userName]: data });
+                loadAvatarExternal(data);
+            } else {
+                scene.getObjectByName( data.userName ).position.set(data.position.x, data.position.y, data.position.z);
+                scene.getObjectByName( data.userName ).rotation.y = data.rotation;
+            }
         }
-    }
-});
+    });
 });
 
 function generateMenu(){
