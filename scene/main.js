@@ -54,13 +54,11 @@ $(document).ready(function () {
 socket.on('refreshUsers', function (data) {
     if ( data.userName != undefined && data.userName != saveData.userName) {
         if(!externaUsersList[data.userName]){
-            console.log('nuevo usuario: ', data);
             Object.assign(externaUsersList, { [data.userName]: data });
             loadAvatarExternal(data);
         } else {
-            console.log('El usuario ya existe: ', externaUsersList);
-            scene.getObjectByName( data.name ).position.set(data.position.x, data.position.y, data.position.z);
-            scene.getObjectByName( data.name ).rotation.y = data.rotation;
+            scene.getObjectByName( data.userName ).position.set(data.position.x, data.position.y, data.position.z);
+            scene.getObjectByName( data.userName ).rotation.y = data.rotation;
         }
     }
 });
@@ -140,7 +138,7 @@ function initRender() {
     scene.add( directionalLight );
 }
 
-function loadAvatar(externalAvatar) {
+function loadAvatar() {
 
     //remove previous avatar elements created
     scene.remove(avatar);
@@ -187,7 +185,7 @@ function loadAvatar(externalAvatar) {
     collisionCube.visible = false;
     collisionCube.position.y = 0.06;
     avatar.add(collisionCube);
-    avatar.name = saveData.name;
+    avatar.name = saveData.userName;
     turnOnCollision = true;
     scene.add(avatar);
     avatarControls.checkCollision = () => checkCollision(collisionCube);
@@ -199,35 +197,35 @@ function loadAvatar(externalAvatar) {
 }
 
 function loadAvatarExternal(externalAvatar) {
-    externaUsersList[externalAvatar.username].avatarModel = new THREE.Object3D();
-    externaUsersList[externalAvatar.username].animLoader = new THREE.GLTFLoader();
-    externaUsersList[externalAvatar.username].animLoader.load( 'models/avatars/bodies/' + externalAvatar.avatarConfig.body + '.glb', function ( gltf ) {
+    externaUsersList[externalAvatar.userName].avatarModel = new THREE.Object3D();
+    externaUsersList[externalAvatar.userName].animLoader = new THREE.GLTFLoader();
+    externaUsersList[externalAvatar.userName].animLoader.load( 'models/avatars/bodies/' + externalAvatar.body + '.glb', function ( gltf ) {
         let bodyModel = gltf.scene;
-        externaUsersList[externalAvatar.username].avatarAnimations = gltf.animations;
-        bodyModel.name = externalAvatar.username;
-        externaUsersList[externalAvatar.username].avatarModel.add( bodyModel );
-        externaUsersList[externalAvatar.username].mixer = new THREE.AnimationMixer( bodyModel );
+        externaUsersList[externalAvatar.userName].avatarAnimations = gltf.animations;
+        bodyModel.name = externalAvatar.userName;
+        externaUsersList[externalAvatar.userName].avatarModel.add( bodyModel );
+        externaUsersList[externalAvatar.userName].mixer = new THREE.AnimationMixer( bodyModel );
     });
 
-    externaUsersList[externalAvatar.username].headanimLoader = new THREE.GLTFLoader();
-    externaUsersList[externalAvatar.username].headanimLoader.load( 'models/avatars/heads/' + externalAvatar.avatarConfig.head + '.glb', function ( gltf ) {
+    externaUsersList[externalAvatar.userName].headanimLoader = new THREE.GLTFLoader();
+    externaUsersList[externalAvatar.userName].headanimLoader.load( 'models/avatars/heads/' + externalAvatar.head + '.glb', function ( gltf ) {
         let headModel = gltf.scene;
-        externaUsersList[externalAvatar.username].avatarHeadAnimation = gltf.animations;
-        headModel.name = externalAvatar.username;
-        externaUsersList[externalAvatar.username].avatarModel.add( headModel );
-        externaUsersList[externalAvatar.username].headmixer = new THREE.AnimationMixer( headModel );
+        externaUsersList[externalAvatar.userName].avatarHeadAnimation = gltf.animations;
+        headModel.name = externalAvatar.userName;
+        externaUsersList[externalAvatar.userName].avatarModel.add( headModel );
+        externaUsersList[externalAvatar.userName].headmixer = new THREE.AnimationMixer( headModel );
     });
 
     //adding cube inside avatar model to check collisions
     let collisionCubeGeometry = new THREE.BoxGeometry(0.06, 0.06, 0.06);
     let collisionCubeMaterial = new THREE.MeshLambertMaterial({color: 0xff2255});
-    externaUsersList[externalAvatar.name].collisionCube = new THREE.Mesh(collisionCubeGeometry, collisionCubeMaterial);
-    externaUsersList[externalAvatar.name].collisionCube.name = 'collisionCube';
-    externaUsersList[externalAvatar.name].collisionCube.visible = false;
-    externaUsersList[externalAvatar.name].collisionCube.position.y = 0.06;
-    externaUsersList[externalAvatar.name].avatarModel.add(collisionCube);
-    externaUsersList[externalAvatar.name].avatarModel.name = externalAvatar.name;
-    scene.add(externaUsersList[externalAvatar.name].avatarModel);
+    externaUsersList[externalAvatar.userName].collisionCube = new THREE.Mesh(collisionCubeGeometry, collisionCubeMaterial);
+    externaUsersList[externalAvatar.userName].collisionCube.name = 'collisionCube';
+    externaUsersList[externalAvatar.userName].collisionCube.visible = false;
+    externaUsersList[externalAvatar.userName].collisionCube.position.y = 0.06;
+    externaUsersList[externalAvatar.userName].avatarModel.add(collisionCube);
+    externaUsersList[externalAvatar.userName].avatarModel.name = externalAvatar.userName;
+    scene.add(externaUsersList[externalAvatar.userName].avatarModel);
 }
 
 function loadOffice(officeName) {
