@@ -6,7 +6,7 @@ let debbugerSkipOption = false;
 const typeOfControls = "avatar";// options: ["avatar", "camera"]
 
 let camera, scene, renderer, controls, avatarControls, collisionCube, previousCollision, animLoader, 
-headanimLoader, mixer, headmixer, bodyModel, headModel, avatarAnimations, avatarHeadAnimation, socket, ownavatarName,
+headanimLoader, mixer, headmixer, bodyModel, headModel, avatarAnimations, avatarHeadAnimation, socket,
     width = window.innerWidth,
     height = window.innerHeight;
 
@@ -38,6 +38,9 @@ let turnOnCollision = false;
 
 let jumping = false;
 
+//var socket = io.connect('http://34.240.9.59:3031', { 'forceNew': true });
+socket = io.connect('http://192.168.0.157:3031', { 'forceNew': true });
+
 $(document).ready(function () {
     generateMenu();
     initRender();
@@ -46,24 +49,20 @@ $(document).ready(function () {
         skipMenus(JSON.parse( localStorage.getItem('configDataObject')));
     }
     if( debbugerSkipOption == false ) localStorage.removeItem('configDataObject');
-    //var socket = io.connect('http://34.240.9.59:3031', { 'forceNew': true });
-    socket = io.connect('http://192.168.0.157:3031', { 'forceNew': true });
+});
 
-    socket.on('setNewUser', function (data) {
-        console.log('un nuevo usuario aparece', data.name);
-        if( data.name && data.name !==  ownavatarName ) {
-            Object.assign(externaUsersList, { [data.name]: data });
+socket.on('refreshUsers', function (data) {
+    if ( data.userName != undefined && data.userName != saveData.userName) {
+        if(!externaUsersList[data.userName]){
+            console.log('nuevo usuario: ', data);
+            Object.assign(externaUsersList, { [data.userName]: data });
             loadAvatarExternal(data);
-        }
-    });
-    
-    socket.on('refreshUsers', function (data) {
-        if( data.name && data.name !==  ownavatarName ) {
-            console.log('actualuzar usuarios: ', data.name);
+        } else {
+            console.log('El usuario ya existe: ', externaUsersList);
             scene.getObjectByName( data.name ).position.set(data.position.x, data.position.y, data.position.z);
             scene.getObjectByName( data.name ).rotation.y = data.rotation;
         }
-    });
+    }
 });
 
 function generateMenu(){
@@ -188,16 +187,17 @@ function loadAvatar(externalAvatar) {
     collisionCube.visible = false;
     collisionCube.position.y = 0.06;
     avatar.add(collisionCube);
-    avatar.name = externalAvatar ? externalAvatar : ownavatarName;
+    avatar.name = saveData.name;
     turnOnCollision = true;
     scene.add(avatar);
     avatarControls.checkCollision = () => checkCollision(collisionCube);
-    ownavatarName = document.getElementById("inputaNameLabel").value;
-    socket.emit('userAparition',{name: ownavatarName, avatarConfig: avatarConfig });
-    setInterval(() => { 
-        socket.emit('avatarstatus', { name: ownavatarName, position: avatar.position, rotation: avatar.rotation.y, status: avatarControls.action }); 
-    }, 10);
+    //Send data to socketIO server for MMO
+    setInterval(() => {
+        const userDataToSend = Object.assign(saveData, { position: avatar.position, rotation: avatar.rotation.y, status: avatarControls.action });
+        socket.emit('loginAndStatusUser', userDataToSend);
+    }, 2000);
 }
+
 function loadAvatarExternal(externalAvatar) {
     externaUsersList[externalAvatar.name].avatarModel = new THREE.Object3D();
     externaUsersList[externalAvatar.name].animLoader = new THREE.GLTFLoader();
@@ -278,8 +278,8 @@ function loadOffice(officeName) {
         }, onProgress, onError);
     });
     scene.add(planta);
+    Object.assign(saveData, avatarConfig, { office: officeName }, { userName: document.getElementById("inputaNameLabel").value });
     if(debbugerSkipOption == true) {
-        Object.assign(saveData, avatarConfig, { office: officeName }, { userName: document.getElementById("inputaNameLabel").value });
         localStorage.setItem('configDataObject', JSON.stringify(saveData));
     }
 }
