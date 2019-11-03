@@ -52,7 +52,7 @@ $(document).ready(function () {
 });
 
 socket.on('refreshUsers', function (data) {
-    if ( data.userName != undefined && data.userName != saveData.userName) {
+    if ( data.userName != undefined && data.userName != saveData.userName && data.office == saveData.office) {
         if(!externaUsersList[data.userName]){
             Object.assign(externaUsersList, { [data.userName]: data });
             loadAvatarExternal(data);
@@ -193,7 +193,7 @@ function loadAvatar() {
     setInterval(() => {
         const userDataToSend = Object.assign(saveData, { position: avatar.position, rotation: avatar.rotation.y, status: avatarControls.action });
         socket.emit('loginAndStatusUser', userDataToSend);
-    }, 100);
+    }, 80);
 }
 
 function loadAvatarExternal(externalAvatar) {
