@@ -199,23 +199,23 @@ function loadAvatar(externalAvatar) {
 }
 
 function loadAvatarExternal(externalAvatar) {
-    externaUsersList[externalAvatar.name].avatarModel = new THREE.Object3D();
-    externaUsersList[externalAvatar.name].animLoader = new THREE.GLTFLoader();
-    externaUsersList[externalAvatar.name].animLoader.load( 'models/avatars/bodies/' + externalAvatar.avatarConfig.body + '.glb', function ( gltf ) {
+    externaUsersList[externalAvatar.username].avatarModel = new THREE.Object3D();
+    externaUsersList[externalAvatar.username].animLoader = new THREE.GLTFLoader();
+    externaUsersList[externalAvatar.username].animLoader.load( 'models/avatars/bodies/' + externalAvatar.avatarConfig.body + '.glb', function ( gltf ) {
         let bodyModel = gltf.scene;
-        externaUsersList[externalAvatar.name].avatarAnimations = gltf.animations;
-        bodyModel.name = externalAvatar.name;
-        externaUsersList[externalAvatar.name].avatarModel.add( bodyModel );
-        externaUsersList[externalAvatar.name].mixer = new THREE.AnimationMixer( bodyModel );
+        externaUsersList[externalAvatar.username].avatarAnimations = gltf.animations;
+        bodyModel.name = externalAvatar.username;
+        externaUsersList[externalAvatar.username].avatarModel.add( bodyModel );
+        externaUsersList[externalAvatar.username].mixer = new THREE.AnimationMixer( bodyModel );
     });
 
-    externaUsersList[externalAvatar.name].headanimLoader = new THREE.GLTFLoader();
-    externaUsersList[externalAvatar.name].headanimLoader.load( 'models/avatars/heads/' + externalAvatar.avatarConfig.head + '.glb', function ( gltf ) {
+    externaUsersList[externalAvatar.username].headanimLoader = new THREE.GLTFLoader();
+    externaUsersList[externalAvatar.username].headanimLoader.load( 'models/avatars/heads/' + externalAvatar.avatarConfig.head + '.glb', function ( gltf ) {
         let headModel = gltf.scene;
-        externaUsersList[externalAvatar.name].avatarHeadAnimation = gltf.animations;
-        headModel.name = externalAvatar.name;
-        externaUsersList[externalAvatar.name].avatarModel.add( headModel );
-        externaUsersList[externalAvatar.name].headmixer = new THREE.AnimationMixer( headModel );
+        externaUsersList[externalAvatar.username].avatarHeadAnimation = gltf.animations;
+        headModel.name = externalAvatar.username;
+        externaUsersList[externalAvatar.username].avatarModel.add( headModel );
+        externaUsersList[externalAvatar.username].headmixer = new THREE.AnimationMixer( headModel );
     });
 
     //adding cube inside avatar model to check collisions
