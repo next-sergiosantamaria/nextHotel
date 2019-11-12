@@ -47,11 +47,11 @@ $(document).ready(function () {
     }
     if( debbugerSkipOption == false ) localStorage.removeItem('configDataObject');
 
-    socket = io.connect('http://34.240.9.59:3031', { 'forceNew': true });
+    socket = io.connect('http://localhost:3031', { 'forceNew': true });
     //socket = io.connect('http://192.168.0.157:3031', { 'forceNew': true });
 
     socket.on('refreshUsers', function (data) {
-        if ( saveData.username && data.userName != undefined && data.userName != saveData.userName && data.office == saveData.office) {
+        if ( saveData.userName && data.userName != undefined && data.userName != saveData.userName && data.office == saveData.office) {
             if(!externaUsersList[data.userName]){
                 Object.assign(externaUsersList, { [data.userName]: data });
                 loadAvatarExternal(data);
@@ -60,6 +60,9 @@ $(document).ready(function () {
                 scene.getObjectByName( data.userName ).rotation.y = data.rotation;
             }
         }
+    });
+    socket.on('logOutUser', function (data) {
+        scene.remove(scene.getObjectByName(data.userName));
     });
 });
 
