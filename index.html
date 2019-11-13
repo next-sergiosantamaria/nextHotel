@@ -12,6 +12,7 @@
 <body class="darkBack">
     <div id="container" class="displayOff">
         <div onclick="tl.tweenTo('selectOffice')" class="navigateBackButton minButton">Volver</div>
+        <div id="popInfoBox" class="popInfoBox"></div>
     </div>
     <div id="mainScreen" class="mainScreen">
         <div id="logosBox" class="logosBox">
@@ -44,7 +45,7 @@
                 </div>
             </div>
             <div class="navigateButtons">
-                <div onclick="tl.reverse()" class="navigateBackButton">Volver</div>
+                <div onclick="tl.tweenTo('configName')" class="navigateBackButton">Volver</div>
                 <div onclick="tl.tweenTo('selectOffice')" class="navigateContinueButton">Continuar</div>
             </div>
         </div>

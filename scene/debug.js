@@ -1,4 +1,4 @@
-const DEBUG_ENABLED = true;
+const DEBUG_ENABLED = false;
 
 function debug(nearCol, avatar) {
   if (DEBUG_ENABLED) {

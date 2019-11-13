@@ -5,10 +5,9 @@ let debbugerSkipOption = false;
 //select type of controls = "camera" for free camera control or "avatar" for avatar keys control
 const typeOfControls = "avatar";// options: ["avatar", "camera"]
 
-let camera, scene, renderer, controls, avatarControls, collisionCube, previousCollision, animLoader, 
+let camera, scene, renderer, controls, avatarControls, collisionCube, previousCollision, collisionPosition, animLoader, 
 headanimLoader, mixer, headmixer, bodyModel, headModel, avatarAnimations, avatarHeadAnimation, socket,
-    width = window.innerWidth,
-    height = window.innerHeight;
+width = window.innerWidth, height = window.innerHeight;
 
 let externaUsersList = {};    
 
@@ -47,8 +46,8 @@ $(document).ready(function () {
     }
     if( debbugerSkipOption == false ) localStorage.removeItem('configDataObject');
 
-    socket = io.connect('http://34.240.9.59:3031', { 'forceNew': true });
-    //socket = io.connect('http://192.168.0.157:3031', { 'forceNew': true });
+    //socket = io.connect('http://34.240.9.59:3031', { 'forceNew': true });
+    socket = io.connect('http://192.168.137.1:3031', { 'forceNew': true });
 
     socket.on('refreshUsers', function (data) {
         if ( saveData.username && data.userName != undefined && data.userName != saveData.userName && data.office == saveData.office) {
@@ -187,6 +186,7 @@ function loadAvatar() {
     avatar.add(collisionCube);
     avatar.name = saveData.userName;
     turnOnCollision = true;
+    avatar.add(initLabels(avatar.name));
     scene.add(avatar);
     avatarControls.checkCollision = () => checkCollision(collisionCube);
     //Send data to socketIO server for MMO
@@ -220,11 +220,12 @@ function loadAvatarExternal(externalAvatar) {
     let collisionCubeGeometry = new THREE.BoxGeometry(0.06, 0.06, 0.06);
     let collisionCubeMaterial = new THREE.MeshLambertMaterial({color: 0xff2255});
     externaUsersList[externalAvatar.userName].collisionCube = new THREE.Mesh(collisionCubeGeometry, collisionCubeMaterial);
-    externaUsersList[externalAvatar.userName].collisionCube.name = 'collisionCube';
+    externaUsersList[externalAvatar.userName].collisionCube.name = 'otherCollisionCube';
     externaUsersList[externalAvatar.userName].collisionCube.visible = false;
     externaUsersList[externalAvatar.userName].collisionCube.position.y = 0.06;
-    externaUsersList[externalAvatar.userName].avatarModel.add(collisionCube);
+    externaUsersList[externalAvatar.userName].avatarModel.add(externaUsersList[externalAvatar.userName].collisionCube);
     externaUsersList[externalAvatar.userName].avatarModel.name = externalAvatar.userName;
+    externaUsersList[externalAvatar.userName].avatarModel.add(initLabels(externalAvatar.userName));
     scene.add(externaUsersList[externalAvatar.userName].avatarModel);
 }
 
@@ -302,14 +303,22 @@ function checkCollision(cube) {
             nearCol = collisionResults.reduce((max = {}, item) => item.distance < max.distance ? max : item);
             avatarControls.blockIfCollision();
             if( previousCollision == nearCol.object.name ){
-                doSomething(nearCol.object.name);
                 debug(nearCol, originPoint);
                 return nearCol;
             }
             else {
                 previousCollision = nearCol.object.name;
+                collisionPosition = originPoint;
+                doSomething(nearCol.object.name);
                 debug(nearCol, originPoint);
                 return nearCol;
+            }
+        }
+        else if (collisionPosition) {
+            let distandeBetween = collisionPosition.distanceTo( avatar.position );
+            if(distandeBetween > 0.3) {
+                unDoSomething();
+                collisionPosition = undefined;
             }
         }
     }
@@ -386,6 +395,27 @@ function animate() {
 function render() {
     renderer.render(scene, camera);
     if(turnOnCollision) checkCollision(collisionCube);
+}
+
+function initLabelMaterial( text ) {
+    var canvas = document.createElement( 'canvas' );
+    var ctx = canvas.getContext( '2d' );
+    ctx.fillStyle = "rgba(0,0,0,0.4)";
+    ctx.fillRect( 0, 0, 500, 60 );
+    ctx.fillStyle = 'white';
+    ctx.font = `15pt bbvaweb`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText( text, 20, 30 );
+    var map = new THREE.CanvasTexture( canvas );
+    return new THREE.SpriteMaterial( { map } );
+}
+  
+function initLabels(name) {
+    spriteLabel = new THREE.Sprite( initLabelMaterial( name ) );
+    spriteLabel.position.set( 0, 0.25, 0 );
+    spriteLabel.scale.set( 0.3, 0.15, 1 );
+    return spriteLabel;
 }
 
 function movement(value, object, delay, duration, easingType) {

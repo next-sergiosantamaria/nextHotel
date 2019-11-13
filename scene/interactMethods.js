@@ -1,5 +1,10 @@
 function bathEasterEgg(name) {
     console.log("has colisionado con: ", name);
+    TweenMax.to("#popInfoBox", 0.2, { width: 450, height: 250, ease: Back.easeOut });
+}
+
+function unDoSomething(){
+    TweenMax.to("#popInfoBox", 0.2, { width: 0, height: 0, ease: Back.easeIn });
 }
 
 function doSomething(objectName){
