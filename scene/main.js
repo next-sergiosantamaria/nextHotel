@@ -47,7 +47,7 @@ $(document).ready(function () {
     if( debbugerSkipOption == false ) localStorage.removeItem('configDataObject');
 
     //socket = io.connect('http://34.240.9.59:3031', { 'forceNew': true });
-    socket = io.connect('http://192.168.137.1:3031', { 'forceNew': true });
+    socket = io.connect('http://192.168.0.157:3031', { 'forceNew': true });
 
     socket.on('refreshUsers', function (data) {
         if ( saveData.userName && data.userName != undefined && data.userName != saveData.userName && data.office == saveData.office) {
@@ -189,7 +189,6 @@ function loadAvatar() {
     avatar.add(collisionCube);
     avatar.name = saveData.userName;
     turnOnCollision = true;
-    avatar.add(initLabels(avatar.name));
     scene.add(avatar);
     avatarControls.checkCollision = () => checkCollision(collisionCube);
     //Send data to socketIO server for MMO
@@ -280,7 +279,7 @@ function loadOffice(officeName) {
         }, onProgress, onError);
     });
     scene.add(planta);
-    Object.assign(saveData, avatarConfig, { office: officeName }, { userName: document.getElementById("inputaNameLabel").value });
+    Object.assign(saveData, avatarConfig, { office: officeName }, { userName: (document.getElementById("inputaNameLabel").value).replace(/\s/g, "_") });
     if(debbugerSkipOption == true) {
         localStorage.setItem('configDataObject', JSON.stringify(saveData));
     }
@@ -346,7 +345,7 @@ function animate() {
     }
     if ( avatarControls != undefined ) {
         if(mixer){
-            let readedAction = avatarControls.action != undefined ? avatarControls.action : "walk";            
+            let readedAction = avatarControls.action != undefined ? avatarControls.action : "walk";   
 
             let bodyAnimation = avatarAnimations[ avatarAnimations.findIndex(x => x.name === readedAction) ];
             let headAnimation = avatarHeadAnimation[ avatarHeadAnimation.findIndex(x => x.name === readedAction) ];
@@ -404,10 +403,10 @@ function initLabelMaterial( text ) {
     var canvas = document.createElement( 'canvas' );
     var ctx = canvas.getContext( '2d' );
     ctx.fillStyle = "rgba(0,0,0,0.4)";
-    ctx.fillRect( 0, 0, 500, 60 );
+    ctx.fillRect( 0, 0, 25*text.length, 60 );
     ctx.fillStyle = 'white';
     ctx.font = `15pt bbvaweb`;
-    ctx.textAlign = 'left';
+    ctx.textAlign = 'middle';
     ctx.textBaseline = 'middle';
     ctx.fillText( text, 20, 30 );
     var map = new THREE.CanvasTexture( canvas );
@@ -416,8 +415,9 @@ function initLabelMaterial( text ) {
   
 function initLabels(name) {
     spriteLabel = new THREE.Sprite( initLabelMaterial( name ) );
-    spriteLabel.position.set( 0, 0.25, 0 );
+    spriteLabel.position.set( 0, 0.3, 0 );
     spriteLabel.scale.set( 0.3, 0.15, 1 );
+    spriteLabel.center.x = (0.042*name.length).toFixed(2);
     return spriteLabel;
 }
 
