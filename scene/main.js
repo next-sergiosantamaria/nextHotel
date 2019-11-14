@@ -50,7 +50,7 @@ $(document).ready(function () {
     socket = io.connect('http://192.168.137.1:3031', { 'forceNew': true });
 
     socket.on('refreshUsers', function (data) {
-        if ( saveData.username && data.userName != undefined && data.userName != saveData.userName && data.office == saveData.office) {
+        if ( saveData.userName && data.userName != undefined && data.userName != saveData.userName && data.office == saveData.office) {
             if(!externaUsersList[data.userName]){
                 Object.assign(externaUsersList, { [data.userName]: data });
                 loadAvatarExternal(data);
@@ -59,6 +59,9 @@ $(document).ready(function () {
                 scene.getObjectByName( data.userName ).rotation.y = data.rotation;
             }
         }
+    });
+    socket.on('logOutUser', function (data) {
+        scene.remove(scene.getObjectByName(data.userName));
     });
 });
 
