@@ -239,7 +239,7 @@ input[type=text]:focus {
   left: 30px;
   border-radius: 5px;
   background: white;
-  border:4px #222222;
+  border: solid 4px #2c2c2c;
 }
 
 @-webkit-keyframes breathing {

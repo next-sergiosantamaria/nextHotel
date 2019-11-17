@@ -46,8 +46,8 @@ $(document).ready(function () {
     }
     if( debbugerSkipOption == false ) localStorage.removeItem('configDataObject');
 
-    //socket = io.connect('http://34.240.9.59:3031', { 'forceNew': true });
-    socket = io.connect('http://192.168.0.157:3031', { 'forceNew': true });
+    socket = io.connect('https://34.240.9.59:443', { forceNew: true, secure: true });
+    //socket = io.connect('https://192.168.0.158:443', { secure: true });
 
     socket.on('refreshUsers', function (data) {
         if ( saveData.userName && data.userName != undefined && data.userName != saveData.userName && data.office == saveData.office) {
@@ -111,6 +111,7 @@ function initRender() {
     element.id = "svgObject";
 
     camera = new THREE.PerspectiveCamera(60, (width / height), 0.01, 10000000);
+    camera.name = "mainCamera";
     camera.position.set(1, 2, 0);
 
     scene.add(camera);
@@ -133,10 +134,12 @@ function initRender() {
 
     ambientLight = new THREE.AmbientLight(0xffffff, 1);
     ambientLight.position.set(0, 0.6, 0);
+    ambientLight.name = "mainLight";
     scene.add(ambientLight);
 
     let directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
     directionalLight.position.set(3,3,3);
+    directionalLight.name = "secondaryLight";
     scene.add( directionalLight );
 }
 
@@ -231,6 +234,15 @@ function loadAvatarExternal(externalAvatar) {
     scene.add(externaUsersList[externalAvatar.userName].avatarModel);
 }
 
+function christmastTime() {
+    treemodel = new THREE.GLTFLoader();
+    treemodel.load( 'models/navidad/navidadTree.glb', function ( gltf ) {
+        let treeModel = gltf.scene;
+        treeModel.name = 'christmasTree';
+        scene.add( treeModel );
+    });
+}
+
 function loadOffice(officeName) {
     interactiveObjects = [];
     tl.tweenTo("openApp");
@@ -283,6 +295,7 @@ function loadOffice(officeName) {
     if(debbugerSkipOption == true) {
         localStorage.setItem('configDataObject', JSON.stringify(saveData));
     }
+    christmastTime();
 }
 
 function skipMenus(savedDatas){
