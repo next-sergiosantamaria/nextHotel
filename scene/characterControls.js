@@ -81,6 +81,10 @@ keyControls = function(avatarObject) {
             case event.key == " ":
                 this.action = "jump";
             break;
+            //greeting
+            case event.key == "1":
+                this.action = "greeting";
+            break;            
         }
         this.direction.x = ( Number( this.moveForward ) - Number( this.moveBackward )) * this.moveSpeed;
         this.direction.z = ( Number( this.moveLeft ) - Number( this.moveRight  )) * this.moveSpeed;

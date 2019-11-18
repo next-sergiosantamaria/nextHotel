@@ -366,20 +366,13 @@ function animate() {
             let headClip = headmixer.clipAction( headAnimation );
 
             switch(readedAction) {
+                case 'greeting':                     
+                    playAction(bodyClip, false);
+                    playAction(headClip, false);
+                break;
                 case 'jump': 
-                    mixer.addEventListener( 'loop', function( e ) {
-                        var curAction = e.action;
-                        curAction.stop();
-                    } );
-                    headmixer.addEventListener( 'loop', function( e ) {
-                        var curAction = e.action;
-                        curAction.stop();
-                    } );
-
-                    bodyClip.setEffectiveTimeScale(3);
-                    bodyClip.play();
-                    headClip.setEffectiveTimeScale(3);
-                    headClip.play();                    
+                    playAction(bodyClip, true);
+                    playAction(headClip, true);
                 break;
                 case 'walk':
                         if(avatarControls.direction.x != 0 || avatarControls.direction.z != 0) {
@@ -405,6 +398,15 @@ function animate() {
     setTimeout(function() {
         requestAnimationFrame(animate);
     }, 1000 / 30);
+}
+
+function playAction(action, scaled) {
+    if(scaled) {
+        action.setEffectiveTimeScale(3);
+    }
+    action.setLoop(THREE.LoopOnce);
+    action.play();
+    action.reset();
 }
 
 function render() {
